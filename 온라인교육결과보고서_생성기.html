@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>온라인 교육 결과 보고서 생성기</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "맑은 고딕", sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #fdf2f8 100%);
+    background-attachment: fixed;
+    color: #1f2937;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 {
+    font-size: 28px; font-weight: 700; margin: 0 0 6px;
+    background: linear-gradient(90deg, #4f46e5, #db2777);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .page-header p { margin: 0; color: #6b7280; font-size: 14px; }
+
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.04);
+    border: 1px solid rgba(15,23,42,0.05);
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 20px rgba(15,23,42,0.06); }
+  .card h2 {
+    font-size: 15px; font-weight: 600; margin: 0 0 14px;
+    color: #111827; display: flex; align-items: center; gap: 10px;
+  }
+  .card h2::before {
+    content: attr(data-num);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 8px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff; font-size: 12px; font-weight: 700;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 5px; font-weight: 500; }
+  input[type="text"], input[type="number"], textarea {
+    width: 100%; padding: 9px 11px; border: 1px solid #e5e7eb; border-radius: 8px;
+    font-size: 13px; background: #fff; color: #1f2937;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+    outline: none; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.15);
+  }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* Drag & Drop 업로드 영역 */
+  .dropzone {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 22px 20px;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .dropzone:hover { border-color: #818cf8; background: #f5f3ff; }
+  .dropzone.dragover {
+    border-color: #4f46e5; background: #eef2ff;
+    box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+    transform: scale(1.005);
+  }
+  .dropzone.has-file { border-color: #10b981; background: #ecfdf5; border-style: solid; }
+  .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .dz-icon { font-size: 24px; margin-bottom: 6px; line-height: 1; }
+  .dz-title { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+  .dz-desc { font-size: 11px; color: #6b7280; }
+  .dz-file { font-size: 12px; color: #047857; font-weight: 600; margin-top: 6px; word-break: break-all; }
+
+  button {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #fff; border: none; padding: 11px 22px; border-radius: 9px;
+    cursor: pointer; font-size: 14px; font-weight: 600; margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(79,70,229,0.25);
+    transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
+    font-family: inherit;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(79,70,229,0.3); }
+  button.secondary { background: #fff; color: #374151; border: 1px solid #e5e7eb; box-shadow: none; }
+  button.secondary:hover:not(:disabled) { background: #f9fafb; }
+  button.danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; box-shadow: none; }
+  button.danger:hover:not(:disabled) { background: #fef2f2; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-row { margin-top: 20px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-row .spacer { flex: 1; }
+
+  .checkbox-group { display: flex; gap: 12px; font-size: 13px; flex-wrap: wrap; }
+  .checkbox-group label {
+    display: flex; align-items: center; gap: 6px; margin: 0;
+    padding: 7px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+    background: #fff; cursor: pointer; font-size: 13px; color: #374151;
+    transition: all 0.15s;
+  }
+  .checkbox-group label:hover { border-color: #c7d2fe; background: #f5f3ff; }
+  .checkbox-group input[type="checkbox"] { accent-color: #4f46e5; width: 14px; height: 14px; }
+
+  /* 보고서 출력 영역 (A4 기준: 210mm 폭, 내부 여백 고려해 794px 고정) */
+  #report { background: #fff; padding: 40px 50px; margin-top: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none; width: 794px; margin-left: auto; margin-right: auto; }
+  #report h1.title { font-size: 20px; border-bottom: 2px solid #222; padding-bottom: 8px; margin-bottom: 24px; }
+  #report h2.section { font-size: 15px; background: #e8ecf3; padding: 8px 12px; margin-top: 20px; margin-bottom: 12px; border-left: 4px solid #3366cc; page-break-after: avoid; }
+  #report h3.subsection { font-size: 13px; font-weight: bold; margin: 14px 0 6px; color: #333; page-break-after: avoid; }
+  #report .sub-desc { font-size: 12px; color: #666; font-style: italic; margin-bottom: 8px; }
+  #report table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; page-break-inside: avoid; }
+  #report th, #report td { border: 1px solid #ccc; padding: 5px 6px; text-align: center; word-break: keep-all; }
+  #report th { background: #f0f3f8; font-weight: bold; }
+  #report td.text-left { text-align: left; }
+  #report .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; page-break-inside: avoid; }
+  #report .chart-wrap { position: relative; height: 200px; page-break-inside: avoid; }
+  #report .block { page-break-inside: avoid; }
+  #report .page-break { page-break-before: always; }
+  .note { font-size: 11px; color: #888; margin-top: 4px; }
+
+  /* 독려 이미지 썸네일 */
+  .img-thumb-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .img-thumb { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+  .img-thumb img { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; }
+  .img-thumb .img-name { font-size: 10px; color: #6b7280; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .img-thumb .del-btn { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; margin: 0; font-size: 12px; line-height: 20px; text-align: center; border-radius: 50%; background: #ef4444; color: #fff; border: none; cursor: pointer; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .img-thumb .del-btn:hover { background: #dc2626; transform: none; box-shadow: none; }
+
+  /* 보고서 내 독려 이미지 */
+  #r_opimgs_container { display: block; margin-top: 8px; }
+  #r_opimgs_container img { display: block; max-width: 100%; height: auto; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; page-break-inside: avoid; }
+
+  @media print {
+    @page { size: A4; margin: 12mm; }
+    body { background: #fff; }
+    .wrap > h1, .wrap > .card, .wrap > .btn-row { display: none !important; }
+    #report { display: block !important; box-shadow: none; padding: 0; margin: 0; width: 100%; }
+    #report h2.section { page-break-after: avoid; }
+    #report h3.subsection { page-break-after: avoid; }
+    #report .block, #report table, #report .chart-wrap, #report .two-col { page-break-inside: avoid; }
+    canvas { max-width: 100% !important; height: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-header">
+    <h1>온라인 교육 결과 보고서 생성기</h1>
+    <p>LMS 데이터를 업로드하면 자동으로 리포트를 생성합니다</p>
+  </div>
+
+  <div class="card">
+    <h2 data-num="1">원본 CSV 업로드</h2>
+    <div class="dropzone" id="dz_csv">
+      <div class="dz-icon">📄</div>
+      <div class="dz-title">파일을 드래그하거나 클릭하여 업로드</div>
+      <div class="dz-desc">패스트캠퍼스 LMS 수강 데이터 (CSV / XLSX / XLS)</div>
+      <div class="dz-file" id="dz_csv_name"></div>
+      <input type="file" id="csvFile" accept=".csv,.xlsx,.xls">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-num="2">교육 과정 개요</h2>
+    <div class="grid">
+      <div><label>기업명</label><input type="text" id="companyName" placeholder="예: 케이에스브이"></div>
+      <div><label>과정명</label><input type="text" id="courseName" placeholder="예: 커스텀 50개 과정"></div>
+      <div><label>교육 기간</label><input type="text" id="period" placeholder="예: 2025-04-01~2026-03-31"></div>
+      <div><label>총 입과 인원</label><input type="number" id="totalEnrolled" placeholder="예: 24"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-num="3">요일별 접속 (파일 업로드 또는 수동 입력)</h2>
+    <div class="dropzone" id="dz_dow" style="margin-bottom:12px;">
+      <div class="dz-icon">📅</div>
+      <div class="dz-title">파일을 드래그하거나 클릭하여 업로드</div>
+      <div class="dz-desc">컬럼: filtered_date / employee_cnt / 요일</div>
+      <div class="dz-file" id="dz_dow_name"></div>
+      <input type="file" id="dowFile" accept=".csv,.xlsx,.xls">
+    </div>
+    <div class="grid" style="grid-template-columns: repeat(7, 1fr);">
+      <div><label>월</label><input type="number" id="dow_mon" value="0"></div>
+      <div><label>화</label><input type="number" id="dow_tue" value="0"></div>
+      <div><label>수</label><input type="number" id="dow_wed" value="0"></div>
+      <div><label>목</label><input type="number" id="dow_thu" value="0"></div>
+      <div><label>금</label><input type="number" id="dow_fri" value="0"></div>
+      <div><label>토</label><input type="number" id="dow_sat" value="0"></div>
+      <div><label>일</label><input type="number" id="dow_sun" value="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-num="4">시간대별 접속 (파일 업로드 또는 수동 입력)</h2>
+    <div class="dropzone" id="dz_hour" style="margin-bottom:12px;">
+      <div class="dz-icon">⏰</div>
+      <div class="dz-title">파일을 드래그하거나 클릭하여 업로드</div>
+      <div class="dz-desc">컬럼: play_hour (0-23) / employee_cnt</div>
+      <div class="dz-file" id="dz_hour_name"></div>
+      <input type="file" id="hourFile" accept=".csv,.xlsx,.xls">
+    </div>
+    <div class="grid" style="grid-template-columns: repeat(7, 1fr);">
+      <div><label>00-06</label><input type="number" id="h_0" value="0"></div>
+      <div><label>06-09</label><input type="number" id="h_1" value="0"></div>
+      <div><label>09-12</label><input type="number" id="h_2" value="0"></div>
+      <div><label>12-15</label><input type="number" id="h_3" value="0"></div>
+      <div><label>15-18</label><input type="number" id="h_4" value="0"></div>
+      <div><label>18-21</label><input type="number" id="h_5" value="0"></div>
+      <div><label>21-24</label><input type="number" id="h_6" value="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-num="5">운영 사항</h2>
+    <div class="checkbox-group" style="margin-bottom: 10px;">
+      <label><input type="checkbox" id="chk_none"> 독려없음</label>
+      <label><input type="checkbox" id="chk_sms"> SMS</label>
+      <label><input type="checkbox" id="chk_email" checked> E-mail</label>
+      <label><input type="checkbox" id="chk_kakao" checked> 알림톡</label>
+    </div>
+    <label>독려 상세</label>
+    <textarea id="encourageDetail">- 매월 2회(10,25일) 정기 학습 독려 메일/알림톡 발송</textarea>
+    <label style="margin-top:14px;">독려 이미지 첨부 <span style="color:#9ca3af;font-weight:400;">(메일·알림톡 캡처 등, 여러 장 가능)</span></label>
+    <div class="dropzone" id="dz_opimg" style="padding:16px 20px;">
+      <div class="dz-icon">🖼️</div>
+      <div class="dz-title">이미지를 드래그하거나 클릭하여 업로드</div>
+      <div class="dz-desc">드래그·클릭·Ctrl+V 붙여넣기 — 여러 장 가능</div>
+      <div class="dz-file" id="dz_opimg_name"></div>
+      <input type="file" id="opImgFile" accept="image/*" multiple>
+    </div>
+    <div class="img-thumb-grid" id="opImgPreview"></div>
+  </div>
+
+  <div class="btn-row">
+    <button id="generateBtn">보고서 생성</button>
+    <button id="pdfBtn" class="secondary" disabled>PDF 다운로드 (인쇄 → PDF로 저장)</button>
+    <button id="xlsxBtn" class="secondary" disabled>XLSX 다운로드</button>
+    <span class="spacer"></span>
+    <button type="button" class="danger" onclick="clearSaved()">저장값 초기화</button>
+  </div>
+
+  <div id="report">
+    <h1 class="title" id="r_title">온라인 교육 결과 보고서</h1>
+
+    <div class="block">
+      <h2 class="section">1. 교육 과정 개요</h2>
+      <table>
+        <tr><th style="width:20%">기업명</th><td class="text-left" id="r_company"></td></tr>
+        <tr><th>과정명</th><td class="text-left" id="r_course"></td></tr>
+        <tr><th>교육 기간</th><td class="text-left" id="r_period"></td></tr>
+      </table>
+    </div>
+
+    <h2 class="section">2. 수강 강의 상세 현황</h2>
+    <div class="sub-desc">교육 기간 동안의 인기 카테고리와 가장 많이 수강했던 강의를 확인하실 수 있어요!</div>
+
+    <div class="block">
+      <h3 class="subsection">2-1. 인기 카테고리</h3>
+      <div class="two-col">
+        <table id="tbl_category"></table>
+        <div class="chart-wrap"><canvas id="chart_category"></canvas></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3 class="subsection">2-2. 인기강의 top 5 (누적 수강 시간 기준)</h3>
+      <table id="tbl_topTime"></table>
+    </div>
+
+    <div class="block">
+      <h3 class="subsection">2-3. 인기강의 top 5 (수강 인원 기준)</h3>
+      <table id="tbl_topUsers"></table>
+    </div>
+
+    <h2 class="section">3. 수강생 수강 현황</h2>
+    <div class="sub-desc">교육 기간 동안 수강생들의 수강 현황을 확인하실 수 있어요!</div>
+
+    <div class="block">
+      <h3 class="subsection">3-1. 수강 현황</h3>
+      <div class="two-col">
+        <div>
+          <table id="tbl_status"></table>
+          <div class="note">*수강 인원: 1초 이상 수강한 인원</div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart_status"></canvas></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3 class="subsection">3-2. 주요 우수 수강생 top 5 (누적 수강 시간 기준)</h3>
+      <table id="tbl_topStudents"></table>
+    </div>
+
+    <div class="block">
+      <h3 class="subsection">3-3. 요일 별 접속 유저수</h3>
+      <div class="chart-wrap"><canvas id="chart_dow"></canvas></div>
+      <table id="tbl_dow"></table>
+    </div>
+
+    <div class="block">
+      <h3 class="subsection">3-4. 시간대 별 접속 유저수</h3>
+      <div class="chart-wrap"><canvas id="chart_hour"></canvas></div>
+      <table id="tbl_hour"></table>
+    </div>
+
+    <div class="block">
+      <h2 class="section">4. 온라인 수강 운영 사항</h2>
+      <div class="sub-desc" id="r_periodDesc"></div>
+      <h3 class="subsection">4-1. 운영 현황</h3>
+      <table>
+        <tr><th style="width:20%">학습관리</th><td class="text-left" id="r_manage"></td></tr>
+        <tr><th>독려상세</th><td class="text-left" id="r_encourage"></td></tr>
+      </table>
+      <div id="r_opimgs" style="display:none;">
+        <h3 class="subsection">4-2. 독려 이미지</h3>
+        <div id="r_opimgs_container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let parsedRows = null;
+let computed = null;
+let charts = {};
+let opImages = []; // { name, dataUrl, ext }
+
+// ===== 입력값 자동 저장/복원 (localStorage) =====
+const STORAGE_KEY = 'reportGenInputs_v1';
+const persistIds = [
+  'companyName','courseName','period','totalEnrolled',
+  'dow_mon','dow_tue','dow_wed','dow_thu','dow_fri','dow_sat','dow_sun',
+  'h_0','h_1','h_2','h_3','h_4','h_5','h_6',
+  'encourageDetail'
+];
+const persistChecks = ['chk_none','chk_sms','chk_email','chk_kakao'];
+
+function saveInputs() {
+  const data = {};
+  persistIds.forEach(id => { data[id] = document.getElementById(id).value; });
+  persistChecks.forEach(id => { data[id] = document.getElementById(id).checked; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function restoreInputs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    persistIds.forEach(id => { if (data[id] !== undefined) document.getElementById(id).value = data[id]; });
+    persistChecks.forEach(id => { if (data[id] !== undefined) document.getElementById(id).checked = data[id]; });
+  } catch(e) {}
+}
+
+function clearSaved() {
+  if (confirm('저장된 입력값을 모두 초기화할까요?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+restoreInputs();
+[...persistIds, ...persistChecks].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', saveInputs);
+  if (el) el.addEventListener('change', saveInputs);
+});
+
+document.getElementById('csvFile').addEventListener('change', handleFile);
+document.getElementById('dowFile').addEventListener('change', handleDowFile);
+document.getElementById('hourFile').addEventListener('change', handleHourFile);
+
+// ===== 드래그 앤 드롭 설정 =====
+function setupDropzone(zoneId, inputId, nameId) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+
+  const showFile = (file) => {
+    if (!file) return;
+    zone.classList.add('has-file');
+    nameEl.textContent = `✓ ${file.name}`;
+  };
+
+  input.addEventListener('change', () => {
+    if (input.files && input.files[0]) showFile(input.files[0]);
+  });
+
+  ['dragenter','dragover'].forEach(ev => {
+    zone.addEventListener(ev, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      zone.classList.add('dragover');
+    });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    zone.addEventListener(ev, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (ev === 'dragleave' && zone.contains(e.relatedTarget)) return;
+      zone.classList.remove('dragover');
+    });
+  });
+  zone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if (!files || !files.length) return;
+    const file = files[0];
+    const ok = /\.(csv|xlsx|xls)$/i.test(file.name);
+    if (!ok) { alert('CSV, XLSX, XLS 파일만 업로드 가능합니다.'); return; }
+    try {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    } catch (_) {}
+    showFile(file);
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+}
+setupDropzone('dz_csv', 'csvFile', 'dz_csv_name');
+setupDropzone('dz_dow', 'dowFile', 'dz_dow_name');
+setupDropzone('dz_hour', 'hourFile', 'dz_hour_name');
+setupOpImgDropzone();
+document.getElementById('generateBtn').addEventListener('click', generate);
+document.getElementById('pdfBtn').addEventListener('click', downloadPDF);
+document.getElementById('xlsxBtn').addEventListener('click', downloadXLSX);
+
+// ===== 독려 이미지 업로드 =====
+function setupOpImgDropzone() {
+  const zone  = document.getElementById('dz_opimg');
+  const input = document.getElementById('opImgFile');
+  const nameEl = document.getElementById('dz_opimg_name');
+
+  const readFiles = (files) => {
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const ext = file.type.includes('png') ? 'png' : file.type.includes('gif') ? 'gif' : 'jpeg';
+        opImages.push({ name: file.name, dataUrl: ev.target.result, ext });
+        renderOpImgPreview();
+        zone.classList.add('has-file');
+        nameEl.textContent = `✓ ${opImages.length}장 첨부됨`;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  input.addEventListener('change', () => { if (input.files) readFiles(input.files); });
+
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation(); zone.classList.add('dragover');
+  }));
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (ev === 'dragleave' && zone.contains(e.relatedTarget)) return;
+    zone.classList.remove('dragover');
+  }));
+  zone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if (files && files.length) readFiles(files);
+  });
+
+  // Ctrl+V 붙여넣기 지원 (페이지 어디서든 동작)
+  document.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    const imgItems = Array.from(items).filter(it => it.type.startsWith('image/'));
+    if (!imgItems.length) return;
+    e.preventDefault();
+    imgItems.forEach(item => {
+      const file = item.getAsFile();
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const ext = item.type.includes('png') ? 'png' : item.type.includes('gif') ? 'gif' : 'jpeg';
+        const name = `붙여넣기_${opImages.length + 1}.${ext}`;
+        opImages.push({ name, dataUrl: ev.target.result, ext });
+        renderOpImgPreview();
+        zone.classList.add('has-file');
+        document.getElementById('dz_opimg_name').textContent = `✓ ${opImages.length}장 첨부됨`;
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+function renderOpImgPreview() {
+  const grid = document.getElementById('opImgPreview');
+  grid.innerHTML = '';
+  opImages.forEach((img, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'img-thumb';
+
+    const imgEl = document.createElement('img');
+    imgEl.src = img.dataUrl;
+    imgEl.title = img.name;
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'img-name';
+    nameEl.textContent = img.name;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.textContent = '×';
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      opImages.splice(i, 1);
+      renderOpImgPreview();
+      const nameLabel = document.getElementById('dz_opimg_name');
+      const zone = document.getElementById('dz_opimg');
+      if (opImages.length === 0) {
+        zone.classList.remove('has-file');
+        nameLabel.textContent = '';
+      } else {
+        nameLabel.textContent = `✓ ${opImages.length}장 첨부됨`;
+      }
+    };
+
+    wrap.appendChild(imgEl);
+    wrap.appendChild(nameEl);
+    wrap.appendChild(delBtn);
+    grid.appendChild(wrap);
+  });
+}
+
+function readFileAsRows(file, cb) {
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const data = new Uint8Array(evt.target.result);
+    const wb = XLSX.read(data, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    cb(XLSX.utils.sheet_to_json(ws, { defval: '' }));
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function handleDowFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  readFileAsRows(file, (rows) => {
+    const map = {'월':0,'화':0,'수':0,'목':0,'금':0,'토':0,'일':0};
+    rows.forEach(r => {
+      const dow = r['요일'] || r['요일 (아래 삭제 금지)'];
+      const cnt = parseInt(r['employee_cnt']) || 0;
+      if (dow && map.hasOwnProperty(dow)) map[dow] += cnt;
+    });
+    document.getElementById('dow_mon').value = map['월'];
+    document.getElementById('dow_tue').value = map['화'];
+    document.getElementById('dow_wed').value = map['수'];
+    document.getElementById('dow_thu').value = map['목'];
+    document.getElementById('dow_fri').value = map['금'];
+    document.getElementById('dow_sat').value = map['토'];
+    document.getElementById('dow_sun').value = map['일'];
+    alert(`요일별 데이터 로드 완료: 총 ${Object.values(map).reduce((a,b)=>a+b,0)}건`);
+  });
+}
+
+function handleHourFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  readFileAsRows(file, (rows) => {
+    const buckets = [0,0,0,0,0,0,0]; // 00-06, 06-09, 09-12, 12-15, 15-18, 18-21, 21-24
+    rows.forEach(r => {
+      const h = parseInt(r['play_hour']);
+      const cnt = parseInt(r['employee_cnt']) || 0;
+      if (isNaN(h)) return;
+      if (h < 6) buckets[0] += cnt;
+      else if (h < 9) buckets[1] += cnt;
+      else if (h < 12) buckets[2] += cnt;
+      else if (h < 15) buckets[3] += cnt;
+      else if (h < 18) buckets[4] += cnt;
+      else if (h < 21) buckets[5] += cnt;
+      else buckets[6] += cnt;
+    });
+    for (let i=0; i<7; i++) document.getElementById('h_'+i).value = buckets[i];
+    alert(`시간대별 데이터 로드 완료: 총 ${buckets.reduce((a,b)=>a+b,0)}건`);
+  });
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const data = new Uint8Array(evt.target.result);
+    const wb = XLSX.read(data, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    parsedRows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    alert(`${parsedRows.length}건의 데이터를 읽었습니다.`);
+    // 기업명 자동 추정
+    if (parsedRows.length > 0 && !document.getElementById('companyName').value) {
+      document.getElementById('companyName').value = parsedRows[0]['그룹명'] || '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function secsToHMS(s) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function compute() {
+  if (!parsedRows) return null;
+
+  // 삭제 상태 제외
+  const active = parsedRows.filter(r => r['상태'] !== '삭제');
+
+  // 강의 시간 합계 필드: 기간내누적수강시간(S)
+  const getSecs = (r) => {
+    const v = r['기간내누적수강시간(S)'] || r['총수강시간(S)'] || 0;
+    return typeof v === 'number' ? v : parseInt(v) || 0;
+  };
+
+  // 2-1 카테고리 비중 (노출카테고리1 기준, 수강 인원 합계로 카운트)
+  // PDF는 수강 비중(%) - 강의 수강 건수 기준으로 추정
+  const catMap = {};
+  active.forEach(r => {
+    const secs = getSecs(r);
+    if (secs <= 0) return;
+    const cat = r['노출카테고리1'] || '기타';
+    catMap[cat] = (catMap[cat] || 0) + 1;
+  });
+  const catTotal = Object.values(catMap).reduce((a,b)=>a+b,0);
+  const categories = Object.entries(catMap)
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => ({ name: k, count: v, pct: catTotal > 0 ? (v/catTotal*100) : 0 }));
+
+  // 2-2 인기강의 top5 (수강시간)
+  const lectureTimeMap = {};
+  active.forEach(r => {
+    const secs = getSecs(r);
+    if (secs <= 0) return;
+    const name = r['강의명'];
+    const cat = r['노출카테고리1'] || '';
+    if (!lectureTimeMap[name]) lectureTimeMap[name] = { name, cat, secs: 0, users: new Set() };
+    lectureTimeMap[name].secs += secs;
+    lectureTimeMap[name].users.add(r['이메일']);
+  });
+  const topByTime = Object.values(lectureTimeMap)
+    .sort((a,b) => b.secs - a.secs).slice(0,5);
+
+  // 2-3 인기강의 top5 (수강인원)
+  const topByUsers = Object.values(lectureTimeMap)
+    .map(l => ({ ...l, userCount: l.users.size }))
+    .sort((a,b) => b.userCount - a.userCount || b.secs - a.secs).slice(0,5);
+
+  // 3-1 수강 현황
+  const allUsers = new Set(active.map(r => r['이메일']));
+  const studyUsers = new Set(active.filter(r => getSecs(r) > 0).map(r => r['이메일']));
+  const totalEnrolled = parseInt(document.getElementById('totalEnrolled').value) || allUsers.size;
+  const studyCount = studyUsers.size;
+  const nonStudyCount = totalEnrolled - studyCount;
+  const studyPct = totalEnrolled > 0 ? (studyCount / totalEnrolled * 100) : 0;
+
+  // 3-2 우수 수강생 top5 (총 수강 시간 합계)
+  const userMap = {};
+  active.forEach(r => {
+    const secs = getSecs(r);
+    const key = r['이메일'];
+    if (!userMap[key]) userMap[key] = {
+      name: r['이름'], email: key, rank: r['직급'] || '-', dept: r['소속부서'] || '-', secs: 0
+    };
+    userMap[key].secs += secs;
+  });
+  const topStudents = Object.values(userMap)
+    .filter(u => u.secs > 0)
+    .sort((a,b) => b.secs - a.secs).slice(0,5);
+
+  return { categories, topByTime, topByUsers, totalEnrolled, studyCount, nonStudyCount, studyPct, topStudents };
+}
+
+function generate() {
+  if (!parsedRows) { alert('CSV 파일을 먼저 업로드해주세요.'); return; }
+  computed = compute();
+  render(computed);
+  document.getElementById('report').style.display = 'block';
+  document.getElementById('pdfBtn').disabled = false;
+  document.getElementById('xlsxBtn').disabled = false;
+  document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+}
+
+function render(c) {
+  const company = document.getElementById('companyName').value || '-';
+  const course = document.getElementById('courseName').value || '-';
+  const period = document.getElementById('period').value || '-';
+
+  document.getElementById('r_title').textContent = `온라인 교육 결과 보고서 [${company}]`;
+  document.getElementById('r_company').textContent = company;
+  document.getElementById('r_course').textContent = course;
+  document.getElementById('r_period').textContent = period;
+  document.getElementById('r_periodDesc').textContent = `${period} 동안 진행된 운영 내용을 확인하실 수 있어요!`;
+
+  // 학습관리
+  const manage = [];
+  manage.push(document.getElementById('chk_none').checked ? '독려없음 [■]' : '독려없음 [ ]');
+  manage.push(document.getElementById('chk_sms').checked ? 'SMS [■]' : 'SMS [ ]');
+  manage.push(document.getElementById('chk_email').checked ? 'E-mail [■]' : 'E-mail [ ]');
+  manage.push(document.getElementById('chk_kakao').checked ? '알림톡 [■]' : '알림톡 [ ]');
+  document.getElementById('r_manage').textContent = manage.join(' / ');
+  document.getElementById('r_encourage').textContent = document.getElementById('encourageDetail').value;
+
+  // 4-2 독려 이미지
+  const opImgsSection = document.getElementById('r_opimgs');
+  const opImgsContainer = document.getElementById('r_opimgs_container');
+  opImgsContainer.innerHTML = '';
+  if (opImages.length > 0) {
+    opImgsSection.style.display = 'block';
+    opImages.forEach(img => {
+      const imgEl = document.createElement('img');
+      imgEl.src = img.dataUrl;
+      imgEl.alt = img.name;
+      opImgsContainer.appendChild(imgEl);
+    });
+  } else {
+    opImgsSection.style.display = 'none';
+  }
+
+  // 2-1
+  let h = '<tr><th>No.</th><th>카테고리</th><th>수강 비중</th></tr>';
+  c.categories.forEach((row, i) => {
+    h += `<tr><td>${i+1}</td><td>${row.name}</td><td>${row.pct.toFixed(0)}%</td></tr>`;
+  });
+  document.getElementById('tbl_category').innerHTML = h;
+
+  // 2-2
+  h = '<tr><th>No.</th><th>카테고리</th><th>강의명</th><th>수강 시간</th></tr>';
+  c.topByTime.forEach((row, i) => {
+    h += `<tr><td>${i+1}</td><td>${row.cat}</td><td class="text-left">${row.name}</td><td>${secsToHMS(row.secs)}</td></tr>`;
+  });
+  document.getElementById('tbl_topTime').innerHTML = h;
+
+  // 2-3
+  h = '<tr><th>No.</th><th>카테고리</th><th>강의명</th><th>수강 인원</th></tr>';
+  c.topByUsers.forEach((row, i) => {
+    h += `<tr><td>${i+1}</td><td>${row.cat}</td><td class="text-left">${row.name}</td><td>${row.userCount}</td></tr>`;
+  });
+  document.getElementById('tbl_topUsers').innerHTML = h;
+
+  // 3-1
+  h = '<tr><th>구분</th><th>총 입과 인원</th><th>수강 인원</th><th>미수강 인원</th><th>수강 비중(%)</th></tr>';
+  h += `<tr><td>인원 수</td><td>${c.totalEnrolled}</td><td>${c.studyCount}</td><td>${c.nonStudyCount}</td><td>${c.studyPct.toFixed(2)}%</td></tr>`;
+  document.getElementById('tbl_status').innerHTML = h;
+
+  // 3-2
+  h = '<tr><th>No.</th><th>이름</th><th>이메일</th><th>직급</th><th>부서</th><th>수강시간</th></tr>';
+  c.topStudents.forEach((row, i) => {
+    h += `<tr><td>${i+1}</td><td>${row.name}</td><td>${row.email}</td><td>${row.rank}</td><td>${row.dept}</td><td>${secsToHMS(row.secs)}</td></tr>`;
+  });
+  document.getElementById('tbl_topStudents').innerHTML = h;
+
+  // 3-3 요일
+  const dowLabels = ['월','화','수','목','금','토','일'];
+  const dowIds = ['dow_mon','dow_tue','dow_wed','dow_thu','dow_fri','dow_sat','dow_sun'];
+  const dowVals = dowIds.map(id => parseInt(document.getElementById(id).value) || 0);
+  const dowTotal = dowVals.reduce((a,b)=>a+b,0);
+  h = '<tr><th>구분</th>' + dowLabels.map(l=>`<th>${l}</th>`).join('') + '</tr>';
+  h += '<tr><td>누적 수강 횟수</td>' + dowVals.map(v=>`<td>${v}</td>`).join('') + '</tr>';
+  h += '<tr><td>접속률</td>' + dowVals.map(v=>`<td>${dowTotal>0?(v/dowTotal*100).toFixed(2):0}%</td>`).join('') + '</tr>';
+  document.getElementById('tbl_dow').innerHTML = h;
+
+  // 3-4 시간대
+  const hLabels = ['00:00-06:00','06:00-09:00','09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00','21:00-24:00'];
+  const hIds = ['h_0','h_1','h_2','h_3','h_4','h_5','h_6'];
+  const hVals = hIds.map(id => parseInt(document.getElementById(id).value) || 0);
+  const hTotal = hVals.reduce((a,b)=>a+b,0);
+  h = '<tr><th>구분</th>' + hLabels.map(l=>`<th>${l}</th>`).join('') + '</tr>';
+  h += '<tr><td>누적 수강 횟수</td>' + hVals.map(v=>`<td>${v}</td>`).join('') + '</tr>';
+  h += '<tr><td>접속률</td>' + hVals.map(v=>`<td>${hTotal>0?(v/hTotal*100).toFixed(2):0}%</td>`).join('') + '</tr>';
+  document.getElementById('tbl_hour').innerHTML = h;
+
+  // 차트들
+  Object.values(charts).forEach(ch => ch && ch.destroy());
+  charts = {};
+
+  const baseOpt = { animation: false, responsive: true, maintainAspectRatio: false };
+
+  charts.category = new Chart(document.getElementById('chart_category'), {
+    type: 'bar',
+    data: { labels: c.categories.map(x=>x.name), datasets: [{ label: '수강 비중(%)', data: c.categories.map(x=>x.pct.toFixed(1)), backgroundColor: '#6699dd' }] },
+    options: { ...baseOpt, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+  });
+
+  charts.status = new Chart(document.getElementById('chart_status'), {
+    type: 'bar',
+    data: { labels: ['수강 인원','미수강 인원'], datasets: [{ data: [c.studyCount, c.nonStudyCount], backgroundColor: ['#6699dd','#dddddd'] }] },
+    options: { ...baseOpt, indexAxis: 'y', plugins: { legend: { display: false } } }
+  });
+
+  charts.dow = new Chart(document.getElementById('chart_dow'), {
+    type: 'bar',
+    data: {
+      labels: dowLabels,
+      datasets: [
+        { label: '누적 수강 횟수', data: dowVals, backgroundColor: '#6699dd', yAxisID: 'y' },
+        { label: '접속률(%)', data: dowVals.map(v=>dowTotal>0?(v/dowTotal*100):0), type: 'line', borderColor: '#ee5555', yAxisID: 'y1' }
+      ]
+    },
+    options: { ...baseOpt, scales: { y: { position: 'left' }, y1: { position: 'right', grid: { drawOnChartArea: false } } } }
+  });
+
+  charts.hour = new Chart(document.getElementById('chart_hour'), {
+    type: 'line',
+    data: { labels: hLabels, datasets: [{ label: '접속률(%)', data: hVals.map(v=>hTotal>0?(v/hTotal*100):0), fill: true, backgroundColor: 'rgba(102,153,221,0.3)', borderColor: '#3366cc', tension: 0.4 }] },
+    options: { ...baseOpt, plugins: { legend: { display: false } } }
+  });
+}
+
+async function downloadPDF() {
+  const company = document.getElementById('companyName').value || 'report';
+  // 원래 제목을 저장하고 임시로 파일명용 제목으로 교체
+  const originalTitle = document.title;
+  document.title = `[패스트캠퍼스] 온라인 교육 결과 보고서_${company}`;
+
+  // 차트 재렌더 + 안정화 대기
+  Object.values(charts).forEach(ch => ch && ch.resize());
+  Object.values(charts).forEach(ch => ch && ch.update('none'));
+  await new Promise(r => setTimeout(r, 300));
+
+  window.print();
+
+  // 인쇄 다이얼로그 닫힌 후 제목 복구
+  setTimeout(() => { document.title = originalTitle; }, 1000);
+}
+
+async function downloadXLSX() {
+  const c = computed;
+  const company = document.getElementById('companyName').value || 'report';
+  const course  = document.getElementById('courseName').value || '';
+  const period  = document.getElementById('period').value || '';
+
+  const dowLabels = ['월','화','수','목','금','토','일'];
+  const dowIds    = ['dow_mon','dow_tue','dow_wed','dow_thu','dow_fri','dow_sat','dow_sun'];
+  const dowVals   = dowIds.map(id => parseInt(document.getElementById(id).value) || 0);
+  const dowTotal  = dowVals.reduce((a,b)=>a+b,0);
+  const hLabels   = ['00:00-06:00','06:00-09:00','09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00','21:00-24:00'];
+  const hIds      = ['h_0','h_1','h_2','h_3','h_4','h_5','h_6'];
+  const hVals     = hIds.map(id => parseInt(document.getElementById(id).value) || 0);
+  const hTotal    = hVals.reduce((a,b)=>a+b,0);
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('결과보고서');
+
+  // ── 컬럼 너비 (12컬럼)
+  const NCOLS = 12;
+  ws.columns = [
+    {width:6 }, {width:22}, {width:38}, {width:15}, {width:15},
+    {width:14}, {width:14}, {width:14}, {width:14}, {width:14}, {width:14}, {width:14},
+  ];
+
+  // ── 색상 팔레트
+  const C = {
+    titleBg: 'FF3730A3', titleFg: 'FFFFFFFF',
+    secBg:   'FF1D4ED8', secFg:   'FFFFFFFF',
+    subBg:   'FFE8ECF3', subFg:   'FF111827',
+    headBg:  'FFEEF2FF',
+    rowAlt:  'FFF5F7FF',
+    accent:  'FF3366CC',
+    border:  'FFD1D5DB',
+    note:    'FF6B7280',
+  };
+
+  // ── 스타일 헬퍼
+  const T  = (clr=C.border) => ({ style:'thin',   color:{argb:clr} });
+  const M  = (clr=C.accent) => ({ style:'medium', color:{argb:clr} });
+  const font = (opts={}) => ({ name:'Malgun Gothic', size:10, ...opts });
+
+  // 대섹션 (1., 2., 3., 4.)
+  const makeSection = (ri, text) => {
+    const row = ws.getRow(ri); row.height = 28;
+    const cell = row.getCell(1);
+    cell.value = text;
+    cell.font  = font({ bold:true, size:13, color:{argb:C.secFg} });
+    cell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb:C.secBg} };
+    cell.alignment = { horizontal:'left', vertical:'middle', indent:1 };
+    ws.mergeCells(ri, 1, ri, NCOLS);
+  };
+
+  // 서브섹션 (2-1, 2-2 등)
+  const makeSub = (ri, text) => {
+    const row = ws.getRow(ri); row.height = 24;
+    const cell = row.getCell(1);
+    cell.value = text;
+    cell.font  = font({ bold:true, size:11, color:{argb:C.subFg} });
+    cell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb:C.subBg} };
+    cell.alignment = { horizontal:'left', vertical:'middle', indent:1 };
+    cell.border = { top:T(), right:T(), bottom:T(), left:M() };
+    ws.mergeCells(ri, 1, ri, NCOLS);
+  };
+
+  // 표 헤더 셀
+  const hCell = (cell, val) => {
+    cell.value = val;
+    cell.font  = font({ bold:true });
+    cell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb:C.headBg} };
+    cell.alignment = { horizontal:'center', vertical:'middle', wrapText:true };
+    cell.border = { top:T(), left:T(), bottom:T(), right:T() };
+  };
+
+  // 데이터 셀 (alt=true면 줄무늬 배경)
+  const dCell = (cell, val, left=false, alt=false) => {
+    cell.value = val;
+    cell.font  = font();
+    cell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb: alt ? C.rowAlt : 'FFFFFFFF'} };
+    cell.alignment = { horizontal:left?'left':'center', vertical:'middle', wrapText:true, indent:left?1:0 };
+    cell.border = { top:T(), left:T(), bottom:T(), right:T() };
+  };
+
+  // 차트 이미지 삽입
+  const addImg = (canvasId, col0, row0, w, h) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    try {
+      const b64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+      ws.addImage(wb.addImage({ base64:b64, extension:'png' }),
+        { tl:{col:col0, row:row0}, ext:{width:w, height:h}, editAs:'oneCell' });
+    } catch(e) { console.warn('이미지 실패:', canvasId); }
+  };
+
+  // 이미지가 끝나는 행 계산 (1-indexed 반환)
+  // row0은 0-indexed, 반환값은 1-indexed
+  const imgEndRi = (row0, imgH, rowH=20) => row0 + Math.ceil(imgH/rowH) + 2;
+
+  // 이미지 높이만큼 빈 행 예약 후 이동할 행 수 반환
+  const reserveRows = (riStart, imgH, rowH=20) => {
+    const n = Math.ceil(imgH/rowH) + 1;
+    for (let i=0; i<n; i++) ws.getRow(riStart+i).height = rowH;
+    return n;
+  };
+
+  // 여백 행 (높이만 지정, ri+1 반환)
+  const gap = (ri, h=10) => { ws.getRow(ri).height = h; return ri+1; };
+
+  let ri = 1;
+
+  // ════════════════════════════════════════
+  // 제목
+  // ════════════════════════════════════════
+  { const row = ws.getRow(ri); row.height = 40;
+    const cell = row.getCell(1);
+    cell.value = `온라인 교육 결과 보고서 [${company}]`;
+    cell.font  = font({ bold:true, size:16, color:{argb:C.titleFg} });
+    cell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb:C.titleBg} };
+    cell.alignment = { horizontal:'center', vertical:'middle' };
+    ws.mergeCells(ri, 1, ri, NCOLS); ri++; }
+  ri = gap(ri, 14);
+
+  // ════════════════════════════════════════
+  // 1. 교육 과정 개요
+  // ════════════════════════════════════════
+  makeSection(ri, '1. 교육 과정 개요'); ri++;
+  [['기업명', company], ['과정명', course], ['교육 기간', period]].forEach(([lbl, val]) => {
+    const row = ws.getRow(ri); row.height = 22;
+    hCell(row.getCell(1), lbl);
+    const dc = row.getCell(2);
+    dc.value = val; dc.font = font();
+    dc.alignment = { horizontal:'left', vertical:'middle', indent:1 };
+    dc.border = { top:T(), left:T(), bottom:T(), right:T() };
+    ws.mergeCells(ri, 2, ri, NCOLS); ri++;
+  });
+  ri = gap(ri, 14);
+
+  // ════════════════════════════════════════
+  // 2. 수강 강의 상세 현황
+  // ════════════════════════════════════════
+  makeSection(ri, '2. 수강 강의 상세 현황'); ri++;
+  ri = gap(ri, 8);
+
+  // 2-1. 인기 카테고리 — 표(A-C) | 차트(E-L) 나란히
+  makeSub(ri, '2-1. 인기 카테고리'); ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['No.','카테고리','수강 비중'].forEach((h,i) => hCell(row.getCell(i+1), h)); }
+  const catImg0 = ri - 1; // 0-indexed (차트 시작행 = 헤더행)
+  ri++;
+  c.categories.forEach((cat, i) => {
+    const row = ws.getRow(ri); row.height = 22;
+    dCell(row.getCell(1), i+1,                       false, i%2===1);
+    dCell(row.getCell(2), cat.name,                  true,  i%2===1);
+    dCell(row.getCell(3), `${cat.pct.toFixed(0)}%`,  false, i%2===1);
+    ri++;
+  });
+  const catH = Math.max(240, (1+c.categories.length)*24);
+  addImg('chart_category', 4, catImg0, 440, catH);
+  ri = Math.max(ri, imgEndRi(catImg0, catH));
+  ri = gap(ri, 14);
+
+  // 2-2. 인기강의 top5 (수강 시간)
+  makeSub(ri, '2-2. 인기강의 top 5 (누적 수강 시간 기준)'); ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['No.','카테고리','강의명','수강 시간'].forEach((h,i) => hCell(row.getCell(i+1), h)); ri++; }
+  c.topByTime.forEach((lec, i) => {
+    const row = ws.getRow(ri); row.height = 22;
+    dCell(row.getCell(1), i+1,                false, i%2===1);
+    dCell(row.getCell(2), lec.cat,            true,  i%2===1);
+    dCell(row.getCell(3), lec.name,           true,  i%2===1);
+    dCell(row.getCell(4), secsToHMS(lec.secs),false, i%2===1);
+    ri++;
+  });
+  ri = gap(ri, 14);
+
+  // 2-3. 인기강의 top5 (수강 인원)
+  makeSub(ri, '2-3. 인기강의 top 5 (수강 인원 기준)'); ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['No.','카테고리','강의명','수강 인원'].forEach((h,i) => hCell(row.getCell(i+1), h)); ri++; }
+  c.topByUsers.forEach((lec, i) => {
+    const row = ws.getRow(ri); row.height = 22;
+    dCell(row.getCell(1), i+1,           false, i%2===1);
+    dCell(row.getCell(2), lec.cat,       true,  i%2===1);
+    dCell(row.getCell(3), lec.name,      true,  i%2===1);
+    dCell(row.getCell(4), lec.userCount, false, i%2===1);
+    ri++;
+  });
+  ri = gap(ri, 14);
+
+  // ════════════════════════════════════════
+  // 3. 수강생 수강 현황
+  // ════════════════════════════════════════
+  makeSection(ri, '3. 수강생 수강 현황'); ri++;
+  ri = gap(ri, 8);
+
+  // 3-1. 수강 현황 — 표(A-E) | 차트(F-L) 나란히
+  makeSub(ri, '3-1. 수강 현황'); ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['구분','총 입과 인원','수강 인원','미수강 인원','수강 비중(%)']
+      .forEach((h,i) => hCell(row.getCell(i+1), h)); }
+  const stImg0 = ri - 1;
+  ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['인원 수', c.totalEnrolled, c.studyCount, c.nonStudyCount, `${c.studyPct.toFixed(2)}%`]
+      .forEach((v, i) => dCell(row.getCell(i+1), v, false, false)); ri++; }
+  { const row = ws.getRow(ri); row.height = 16;
+    const cell = row.getCell(1);
+    cell.value = '*수강 인원: 1초 이상 수강한 인원';
+    cell.font  = font({ size:9, italic:true, color:{argb:C.note} });
+    cell.alignment = { horizontal:'left', vertical:'middle', indent:1 };
+    ws.mergeCells(ri, 1, ri, 5); ri++; }
+  const stH = 220;
+  addImg('chart_status', 5, stImg0, 400, stH);
+  ri = Math.max(ri, imgEndRi(stImg0, stH));
+  ri = gap(ri, 14);
+
+  // 3-2. 우수 수강생 top5
+  makeSub(ri, '3-2. 주요 우수 수강생 top 5 (누적 수강 시간 기준)'); ri++;
+  { const row = ws.getRow(ri); row.height = 22;
+    ['No.','이름','이메일','직급','부서','수강시간']
+      .forEach((h,i) => hCell(row.getCell(i+1), h)); ri++; }
+  c.topStudents.forEach((stu, i) => {
+    const row = ws.getRow(ri); row.height = 22;
+    dCell(row.getCell(1), i+1,                false, i%2===1);
+    dCell(row.getCell(2), stu.name,           true,  i%2===1);
+    dCell(row.getCell(3), stu.email,          true,  i%2===1);
+    dCell(row.getCell(4), stu.rank,           false, i%2===1);
+    dCell(row.getCell(5), stu.dept,           true,  i%2===1);
+    dCell(row.getCell(6), secsToHMS(stu.secs),false, i%2===1);
+    ri++;
+  });
+  ri = gap(ri, 14);
+
+  // 3-3. 요일별 접속 — 차트 먼저(PDF와 동일), 표 아래
+  makeSub(ri, '3-3. 요일별 접속 유저수'); ri++;
+  const dowChart0 = ri - 1;
+  const dowH = 260;
+  addImg('chart_dow', 0, dowChart0, 720, dowH);
+  ri += reserveRows(ri, dowH);
+  ri = gap(ri, 8);
+  { const row = ws.getRow(ri); row.height = 22;
+    hCell(row.getCell(1), '구분');
+    dowLabels.forEach((l,i) => hCell(row.getCell(i+2), l)); ri++; }
+  [['누적 수강 횟수', ...dowVals],
+   ['접속률', ...dowVals.map(v=>`${dowTotal>0?(v/dowTotal*100).toFixed(2):0}%`)]
+  ].forEach((vals, rowIdx) => {
+    const row = ws.getRow(ri); row.height = 22;
+    vals.forEach((v,i) => dCell(row.getCell(i+1), v, i===0, rowIdx%2===1)); ri++;
+  });
+  ri = gap(ri, 14);
+
+  // 3-4. 시간대별 접속 — 차트 먼저, 표 아래
+  makeSub(ri, '3-4. 시간대별 접속 유저수'); ri++;
+  const hourChart0 = ri - 1;
+  const hourH = 260;
+  addImg('chart_hour', 0, hourChart0, 720, hourH);
+  ri += reserveRows(ri, hourH);
+  ri = gap(ri, 8);
+  { const row = ws.getRow(ri); row.height = 22;
+    hCell(row.getCell(1), '구분');
+    hLabels.forEach((l,i) => hCell(row.getCell(i+2), l)); ri++; }
+  [['누적 수강 횟수', ...hVals],
+   ['접속률', ...hVals.map(v=>`${hTotal>0?(v/hTotal*100).toFixed(2):0}%`)]
+  ].forEach((vals, rowIdx) => {
+    const row = ws.getRow(ri); row.height = 22;
+    vals.forEach((v,i) => dCell(row.getCell(i+1), v, i===0, rowIdx%2===1)); ri++;
+  });
+  ri = gap(ri, 14);
+
+  // ════════════════════════════════════════
+  // 4. 온라인 수강 운영 사항
+  // ════════════════════════════════════════
+  makeSection(ri, '4. 온라인 수강 운영 사항'); ri++;
+  const manage = [
+    document.getElementById('chk_none').checked  ? '독려없음 [■]' : '독려없음 [ ]',
+    document.getElementById('chk_sms').checked   ? 'SMS [■]'      : 'SMS [ ]',
+    document.getElementById('chk_email').checked ? 'E-mail [■]'   : 'E-mail [ ]',
+    document.getElementById('chk_kakao').checked ? '알림톡 [■]'   : '알림톡 [ ]',
+  ];
+  [['학습관리', manage.join(' / ')],
+   ['독려상세', document.getElementById('encourageDetail').value]
+  ].forEach(([lbl, val]) => {
+    const row = ws.getRow(ri); row.height = 22;
+    hCell(row.getCell(1), lbl);
+    const dc = row.getCell(2);
+    dc.value = val; dc.font = font();
+    dc.alignment = { horizontal:'left', vertical:'middle', indent:1, wrapText:true };
+    dc.border = { top:T(), left:T(), bottom:T(), right:T() };
+    ws.mergeCells(ri, 2, ri, NCOLS); ri++;
+  });
+
+  // ── 4-2. 독려 이미지 (첨부된 경우)
+  if (opImages.length > 0) {
+    ri = gap(ri, 10);
+    makeSub(ri, '4-2. 독려 이미지'); ri++;
+    for (const imgData of opImages) {
+      const imgRow0 = ri - 1; // 0-indexed
+      // 자연 크기 가져와서 최대 폭 560px에 맞게 비율 유지
+      const dims = await new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+        img.onerror = () => resolve({ w: 500, h: 350 });
+        img.src = imgData.dataUrl;
+      });
+      const maxW = 560;
+      const scale = Math.min(1, maxW / dims.w);
+      const imgW = Math.round(dims.w * scale);
+      const imgH = Math.round(dims.h * scale);
+      try {
+        const b64 = imgData.dataUrl.replace(/^data:image\/[^;]+;base64,/, '');
+        ws.addImage(wb.addImage({ base64: b64, extension: imgData.ext }),
+          { tl: { col: 0, row: imgRow0 }, ext: { width: imgW, height: imgH }, editAs: 'oneCell' });
+        ri += reserveRows(ri, imgH);
+        ri = gap(ri, 10);
+      } catch(e) { console.warn('독려 이미지 XLSX 삽입 실패:', imgData.name, e); }
+    }
+  }
+
+  // ── 다운로드
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `[패스트캠퍼스] 온라인 교육 결과 보고서_${company}.xlsx`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
