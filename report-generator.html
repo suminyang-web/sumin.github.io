@@ -548,12 +548,24 @@ function handleDowFile(e) {
   if (!file) return;
   readFileAsRows(file, (rows) => {
     const map = {'월':0,'화':0,'수':0,'목':0,'금':0,'토':0,'일':0};
+    const DAY_NAMES = ['일','월','화','수','목','금','토'];
     const keys = rows.length > 0 ? Object.keys(rows[0]) : [];
     const cntKey = keys.find(k => /employee_cnt|계정수|접속수|유저수|cnt/i.test(k)) || 'employee_cnt';
+    const dateKey = keys.find(k => /일자|날짜|date|filtered/i.test(k));
     rows.forEach(r => {
-      const dow = r['요일'] || r['요일 (아래 삭제 금지)'];
       const cnt = parseInt(r[cntKey]) || 0;
-      if (dow && map.hasOwnProperty(dow)) map[dow] += cnt;
+      // 요일 컬럼이 있으면 그대로 사용
+      const dowDirect = r['요일'] || r['요일 (아래 삭제 금지)'];
+      if (dowDirect && map.hasOwnProperty(dowDirect)) {
+        map[dowDirect] += cnt;
+        return;
+      }
+      // 날짜 컬럼에서 요일 계산 (예: "2026. 4. 29." 또는 "2026-04-29")
+      if (dateKey) {
+        const raw = String(r[dateKey]).replace(/\.\s*/g, '-').replace(/\s/g, '').replace(/-$/, '');
+        const d = new Date(raw);
+        if (!isNaN(d)) map[DAY_NAMES[d.getDay()]] += cnt;
+      }
     });
     document.getElementById('dow_mon').value = map['월'];
     document.getElementById('dow_tue').value = map['화'];
