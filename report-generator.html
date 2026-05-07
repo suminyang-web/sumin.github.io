@@ -549,32 +549,38 @@ function handleDowFile(e) {
   readFileAsRows(file, (rows) => {
     const map = {'월':0,'화':0,'수':0,'목':0,'금':0,'토':0,'일':0};
     const DAY_NAMES = ['일','월','화','수','목','금','토'];
+
+    function parseDate(val) {
+      if (!val && val !== 0) return null;
+      if (val instanceof Date) return isNaN(val) ? null : val;
+      if (typeof val === 'number' && val > 40000 && val < 60000)
+        return new Date(Math.round((val - 25569) * 86400 * 1000));
+      const m = String(val).match(/(\d{4})[.\-\/\s]+(\d{1,2})[.\-\/\s]+(\d{1,2})/);
+      if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+      return null;
+    }
+
+    function isDateValue(val) { return parseDate(val) !== null; }
+    function isCountValue(val) { return typeof val === 'number' && Number.isInteger(val) && val >= 0 && val < 1000000; }
+
     const keys = rows.length > 0 ? Object.keys(rows[0]) : [];
-    const cntKey = keys.find(k => /employee_cnt|계정수|접속수|유저수|cnt/i.test(k)) || 'employee_cnt';
-    const dateKey = keys.find(k => /일자|날짜|date|filtered/i.test(k));
+    const sample = rows.slice(0, 5);
+
+    // 값 기반으로 날짜/계정수 컬럼 자동 감지
+    const dateKey = keys.find(k => sample.some(r => isDateValue(r[k])));
+    const cntKey = keys.find(k => k !== dateKey && sample.every(r => r[k] === undefined || isCountValue(r[k])) && sample.some(r => isCountValue(r[k])));
+
     rows.forEach(r => {
-      const cnt = parseInt(r[cntKey]) || 0;
       // 요일 컬럼이 있으면 그대로 사용
       const dowDirect = r['요일'] || r['요일 (아래 삭제 금지)'];
+      const cnt = cntKey ? (parseInt(r[cntKey]) || 0) : 0;
       if (dowDirect && map.hasOwnProperty(dowDirect)) {
         map[dowDirect] += cnt;
         return;
       }
-      // 날짜 컬럼에서 요일 계산
       if (dateKey) {
-        const val = r[dateKey];
-        let d = null;
-        if (val instanceof Date) {
-          d = val; // XLSX가 Date 객체로 변환한 경우
-        } else if (typeof val === 'number' && val > 1000) {
-          // Excel 날짜 시리얼 넘버 (예: 46215)
-          d = new Date(Math.round((val - 25569) * 86400 * 1000));
-        } else {
-          // 텍스트 형식 (예: "2026. 4. 29." 또는 "2026-04-29")
-          const m = String(val).match(/(\d{4})[.\-\/\s]+(\d{1,2})[.\-\/\s]+(\d{1,2})/);
-          if (m) d = new Date(+m[1], +m[2]-1, +m[3]);
-        }
-        if (d && !isNaN(d)) map[DAY_NAMES[d.getDay()]] += cnt;
+        const d = parseDate(r[dateKey]);
+        if (d) map[DAY_NAMES[d.getDay()]] += cnt;
       }
     });
     document.getElementById('dow_mon').value = map['월'];
