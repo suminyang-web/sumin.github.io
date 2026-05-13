@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>(NH투자증권 독려용) 수강 데이터 가공기</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --success: #059669;
+    --warn-bg: #fff7ed;
+    --warn-border: #fed7aa;
+    --warn-text: #9a3412;
+    --error-bg: #fef2f2;
+    --error-border: #fecaca;
+    --error-text: #991b1b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "맑은 고딕", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+  header { margin-bottom: 24px; }
+  header h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .drop-zone.drag { border-color: var(--accent); background: #eff6ff; }
+  .drop-zone p { margin: 6px 0; }
+  .drop-zone .hint { color: var(--muted); font-size: 13px; }
+  input[type="file"] { display: none; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: white; border: 0;
+    padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.secondary { background: #f3f4f6; color: var(--text); }
+  .btn.secondary:hover { background: #e5e7eb; }
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .stat {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .stat .label { color: var(--muted); font-size: 13px; }
+  .stat .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+  .toolbar .search {
+    flex: 1; min-width: 200px;
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px;
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { background: #f9fafb; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+  tbody tr:hover { background: #f9fafb; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+  .alert.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
+  .alert.error { background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text); }
+  .empty { color: var(--muted); padding: 60px 24px; text-align: center; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>(NH투자증권 독려용) 수강 데이터 가공기</h1>
+  <p>raw CSV 파일을 올리면 <strong>노출카테고리1 = AX college</strong> 인 행만 골라 수강생별로 요약합니다.</p>
+</header>
+
+<div class="card" id="uploadCard">
+  <div class="drop-zone" id="dropZone">
+    <p style="font-size: 16px; font-weight: 600;">CSV 파일을 여기에 끌어다 놓거나</p>
+    <p><button type="button" class="btn" id="pickBtn">파일 선택</button></p>
+    <p class="hint">UTF-8 / CP949(EUC-KR) 인코딩 자동 감지</p>
+  </div>
+  <input type="file" id="fileInput" accept=".csv,text/csv" />
+</div>
+
+<div id="message"></div>
+<div id="result" style="display:none">
+  <div class="summary" id="summary"></div>
+  <div class="toolbar">
+    <input type="text" class="search" id="searchInput" placeholder="이름 또는 이메일로 검색…" />
+    <div>
+      <button class="btn secondary" id="resetBtn">파일 다시 올리기</button>
+      <button class="btn" id="downloadBtn">결과 CSV 다운로드</button>
+    </div>
+  </div>
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>이메일</th>
+        <th>이름</th>
+        <th class="num">수료한 강의 수</th>
+        <th class="num">기간내 총수강시간 (H:M:S)</th>
+        <th class="num">전체 평균 시간 (H:M:S)</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const COL = {
+  email: "이메일",
+  name: "이름",
+  category1: "노출카테고리1",
+  completion: "수료여부",
+  watchSeconds: "기간내총수강시간(S)",
+};
+
+const TARGET_CATEGORY = "ax college"; // 비교는 lowercased, trim 후
+
+const $ = (id) => document.getElementById(id);
+
+function showMessage(html, type = "warn") {
+  $("message").innerHTML = `<div class="alert ${type}">${html}</div>`;
+}
+function clearMessage() { $("message").innerHTML = ""; }
+
+function decodeBuffer(buf) {
+  // UTF-8 우선, 실패 시 CP949
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(buf);
+  } catch {
+    try {
+      return new TextDecoder("euc-kr").decode(buf);
+    } catch {
+      return new TextDecoder("utf-8").decode(buf); // 마지막 fallback (관대 모드)
+    }
+  }
+}
+
+function secondsToHMS(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) seconds = 0;
+  const s = Math.round(seconds); // 엑셀 시간 셀 표시와 동일하게 반올림
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+}
+
+function parseNumberCell(v) {
+  if (v === null || v === undefined) return 0;
+  if (typeof v === "number") return v;
+  const s = String(v).replace(/,/g, "").trim();
+  if (s === "" || s === "-") return 0;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function checkRequiredColumns(headers) {
+  const missing = [];
+  for (const key of Object.values(COL)) {
+    if (!headers.includes(key)) missing.push(key);
+  }
+  return missing;
+}
+
+let lastResult = null;
+
+function processRows(rows) {
+  // 1) 노출카테고리1 = AX college (대소문자 무시) 필터
+  const filtered = rows.filter((r) => {
+    const cat = (r[COL.category1] ?? "").toString().trim().toLowerCase();
+    return cat === TARGET_CATEGORY;
+  });
+
+  // 2) 이메일로 그룹화
+  const groups = new Map();
+  for (const r of filtered) {
+    const email = (r[COL.email] ?? "").toString().trim();
+    if (!email) continue;
+    if (!groups.has(email)) {
+      groups.set(email, {
+        email,
+        name: (r[COL.name] ?? "").toString().trim(),
+        completedCount: 0,
+        totalSeconds: 0,
+      });
+    }
+    const g = groups.get(email);
+    if ((r[COL.completion] ?? "").toString().trim() === "수료") g.completedCount += 1;
+    g.totalSeconds += parseNumberCell(r[COL.watchSeconds]);
+  }
+
+  const students = Array.from(groups.values()).sort((a, b) => b.totalSeconds - a.totalSeconds);
+
+  // 3) 전체 평균 — 강의별 평균 (엑셀 AVERAGE 함수와 동일)
+  // AX college 행의 기간내총수강시간(S)을 그대로 평균. 빈 셀은 분모에서도 제외.
+  const validWatchRows = filtered.filter((r) => {
+    const v = r[COL.watchSeconds];
+    if (v === null || v === undefined) return false;
+    return String(v).trim() !== "";
+  });
+  const avgSeconds = validWatchRows.length > 0
+    ? validWatchRows.reduce((sum, r) => sum + parseNumberCell(r[COL.watchSeconds]), 0) / validWatchRows.length
+    : 0;
+
+  return {
+    totalRows: rows.length,
+    filteredRows: filtered.length,
+    students,
+    avgSeconds,
+  };
+}
+
+function renderResult(result) {
+  lastResult = result;
+  const { students, avgSeconds, totalRows, filteredRows } = result;
+
+  $("summary").innerHTML = `
+    <div class="stat"><div class="label">전체 행 수</div><div class="value">${totalRows.toLocaleString()}</div></div>
+    <div class="stat"><div class="label">AX college 행 수</div><div class="value">${filteredRows.toLocaleString()}</div></div>
+    <div class="stat"><div class="label">집계된 수강생 수</div><div class="value">${students.length.toLocaleString()}</div></div>
+    <div class="stat"><div class="label">전체 평균 시간</div><div class="value">${secondsToHMS(avgSeconds)}</div></div>
+  `;
+
+  const avgHms = secondsToHMS(avgSeconds);
+  renderTable(students, avgHms, "");
+
+  $("result").style.display = "block";
+  $("uploadCard").style.display = "none";
+
+  if (students.length === 0) {
+    showMessage("AX college 행을 찾을 수 없습니다. 노출카테고리1 컬럼 값을 확인해 주세요.", "warn");
+  } else {
+    clearMessage();
+  }
+}
+
+function renderTable(students, avgHms, query) {
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? students.filter((s) => s.email.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
+    : students;
+
+  if (filtered.length === 0) {
+    $("resultBody").innerHTML = `<tr><td colspan="5" class="empty">표시할 수강생이 없습니다.</td></tr>`;
+    return;
+  }
+
+  $("resultBody").innerHTML = filtered.map((s) => `
+    <tr>
+      <td>${escapeHtml(s.email)}</td>
+      <td>${escapeHtml(s.name)}</td>
+      <td class="num">${s.completedCount.toLocaleString()}</td>
+      <td class="num">${secondsToHMS(s.totalSeconds)}</td>
+      <td class="num">${avgHms}</td>
+    </tr>
+  `).join("");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
+
+function downloadCsv() {
+  if (!lastResult) return;
+  const avgHms = secondsToHMS(lastResult.avgSeconds);
+  const rows = [
+    ["수강생 메일", "수강생 이름", "수강생 별 수료한 강의 수", "수강생 별 기간내총수강시간", "수강생 전체 기간내총수강시간 평균 시간"],
+    ...lastResult.students.map((s) => [
+      s.email, s.name, s.completedCount, secondsToHMS(s.totalSeconds), avgHms,
+    ]),
+  ];
+  const csv = Papa.unparse(rows);
+  // 엑셀에서 한글 깨지지 않도록 UTF-8 BOM 추가
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const today = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `수강요약_AXcollege_${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (!/\.csv$/i.test(file.name) && file.type !== "text/csv") {
+    showMessage("CSV 파일(.csv)만 지원해요.", "error");
+    return;
+  }
+  clearMessage();
+
+  const reader = new FileReader();
+  reader.onerror = () => showMessage("파일을 읽지 못했어요.", "error");
+  reader.onload = () => {
+    try {
+      const text = decodeBuffer(reader.result);
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (parsed) => {
+          if (parsed.errors && parsed.errors.length > 0) {
+            console.warn("CSV 파싱 경고:", parsed.errors.slice(0, 5));
+          }
+          const headers = parsed.meta.fields || [];
+          const missing = checkRequiredColumns(headers);
+          if (missing.length > 0) {
+            showMessage(
+              `필수 컬럼을 못 찾았어요: ${missing.map((m) => `<code>${escapeHtml(m)}</code>`).join(", ")}<br>` +
+              `CSV의 첫 줄(헤더)에 위 컬럼명이 정확히 들어있는지 확인해 주세요.`,
+              "error"
+            );
+            return;
+          }
+          const result = processRows(parsed.data);
+          renderResult(result);
+        },
+        error: (err) => showMessage(`CSV 파싱 오류: ${escapeHtml(err.message || err)}`, "error"),
+      });
+    } catch (e) {
+      showMessage(`처리 중 오류: ${escapeHtml(e.message || e)}`, "error");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── 이벤트 바인딩 ──
+const dropZone = $("dropZone");
+const fileInput = $("fileInput");
+
+$("pickBtn").addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
+dropZone.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", (e) => handleFile(e.target.files?.[0]));
+
+["dragenter", "dragover"].forEach((ev) =>
+  dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add("drag"); })
+);
+["dragleave", "drop"].forEach((ev) =>
+  dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.remove("drag"); })
+);
+dropZone.addEventListener("drop", (e) => handleFile(e.dataTransfer.files?.[0]));
+
+$("searchInput").addEventListener("input", (e) => {
+  if (!lastResult) return;
+  renderTable(lastResult.students, secondsToHMS(lastResult.avgSeconds), e.target.value);
+});
+
+$("resetBtn").addEventListener("click", () => {
+  lastResult = null;
+  fileInput.value = "";
+  $("result").style.display = "none";
+  $("uploadCard").style.display = "block";
+  clearMessage();
+});
+
+$("downloadBtn").addEventListener("click", downloadCsv);
+</script>
+</body>
+</html>

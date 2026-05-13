@@ -1,0 +1,117 @@
+<!--
+  ui-dropzone.html  —  드래그앤드롭 + 파일 선택 UI 스니펫
+
+  복붙 흐름:
+    1) <style> 안에 아래 [CSS] 블록을 넣는다.
+    2) <body> 안에 [HTML] 블록을 넣는다.
+    3) <script> 안에 [JS] 블록을 넣고, onFile 핸들러를 본인 도구 로직에 맞게 짠다.
+
+  핵심 패턴: 파일 input을 dropzone 위에 absolute opacity:0 으로 깔아둔다.
+  → 별도 button 클릭 핸들러 없이도 dropzone 어디를 눌러도 파일 선택 다이얼로그가 뜸.
+-->
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     [CSS]  —  중립적인 흰색 카드 + 점선 dropzone. 필요하면 색만 바꿔서 사용.
+     ════════════════════════════════════════════════════════════════════ -->
+<style>
+  .dz-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .dz-zone {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 28px 20px;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .dz-zone:hover {
+    border-color: #818cf8;
+    background: #f5f3ff;
+  }
+  .dz-zone.is-dragover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+  }
+  .dz-zone.has-file {
+    border-color: #10b981;
+    background: #ecfdf5;
+    border-style: solid;
+  }
+  .dz-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .dz-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  .dz-desc  { font-size: 12px; color: #6b7280; }
+  .dz-file  { font-size: 13px; color: #047857; font-weight: 600; margin-top: 8px; word-break: break-all; }
+</style>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     [HTML]  —  본인 도구에 맞게 ID(my-dz)와 accept 만 바꾸면 됨
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="dz-card">
+  <div class="dz-zone" id="my-dz">
+    <div class="dz-title">CSV 파일을 끌어다 놓거나 클릭해서 선택</div>
+    <div class="dz-desc">UTF-8 / EUC-KR 자동 감지 · .csv .xlsx 지원</div>
+    <div class="dz-file" id="my-dz-file"></div>
+    <input type="file" id="my-dz-input" accept=".csv,.xlsx,.xls,text/csv" />
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     [JS]  —  setupDropzone(zoneId, inputId, fileLabelId, onFile)
+     ════════════════════════════════════════════════════════════════════ -->
+<script>
+function setupDropzone(zoneId, inputId, fileLabelId, onFile) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const label = fileLabelId ? document.getElementById(fileLabelId) : null;
+
+  function accept(file) {
+    if (!file) return;
+    zone.classList.add("has-file");
+    if (label) label.textContent = file.name;
+    onFile(file);
+  }
+
+  input.addEventListener("change", (e) => accept(e.target.files?.[0]));
+
+  ["dragenter", "dragover"].forEach((ev) =>
+    zone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zone.classList.add("is-dragover");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    zone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zone.classList.remove("is-dragover");
+    })
+  );
+  zone.addEventListener("drop", (e) => accept(e.dataTransfer.files?.[0]));
+}
+
+// 사용 예시 (csv-utils.js 의 decodeBuffer 와 함께):
+//
+//   setupDropzone("my-dz", "my-dz-input", "my-dz-file", (file) => {
+//     const reader = new FileReader();
+//     reader.onload = () => {
+//       const text = decodeBuffer(reader.result);
+//       Papa.parse(text, { header: true, complete: (p) => process(p.data) });
+//     };
+//     reader.readAsArrayBuffer(file);
+//   });
+</script>
