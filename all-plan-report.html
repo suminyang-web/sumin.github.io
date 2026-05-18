@@ -387,11 +387,39 @@ body {
 .raw-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 14px 20px;
   border-bottom: 1px solid #f3f4f6;
   background: #fff;
+  flex-wrap: wrap;
 }
+.raw-filter {
+  display: flex;
+  gap: 2px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 3px;
+}
+.raw-filter button {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  border-radius: 5px;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.raw-filter button.active {
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.raw-filter button:not(.active):hover { color: #1f2937; }
+.raw-table tbody td.period-allplan { color: #2563eb; font-weight: 600; }
+.raw-table tbody td.period-single { color: #9ca3af; }
 .raw-controls input[type="search"] {
   flex: 1;
   padding: 8px 12px;
@@ -828,11 +856,16 @@ body {
   <!-- Section C: Raw Data -->
   <section class="section">
     <h2 class="section-title">📋 Raw 데이터</h2>
-    <p class="section-desc">올 플랜 시기 전체 수강 기록을 검색·정렬해서 확인하실 수 있어요. (이름은 마스킹 처리)</p>
+    <p class="section-desc">올 플랜 도입 전(24.09~25.06) / 후(25.07~26.04) 전체 수강 기록을 검색·정렬해서 확인하실 수 있어요. (이름은 마스킹 처리)</p>
 
     <details class="raw-details">
       <summary>전체 데이터 펼쳐보기</summary>
       <div class="raw-controls">
+        <div class="raw-filter" id="raw-filter">
+          <button class="active" data-period="">전체</button>
+          <button data-period="올 플랜">올 플랜</button>
+          <button data-period="단일 수강">단일 수강</button>
+        </div>
         <input type="search" id="raw-search" placeholder="이름·부서·강의·카테고리 검색...">
         <span class="raw-counter">표시 <b id="raw-shown">-</b> / <b id="raw-total">-</b>건</span>
       </div>
@@ -840,10 +873,11 @@ body {
         <table class="raw-table">
           <thead>
             <tr>
+              <th data-key="period">시기</th>
+              <th data-key="month">입과월</th>
               <th data-key="name">이름</th>
               <th data-key="dept">부서</th>
               <th data-key="rank">직급</th>
-              <th data-key="month">입과월</th>
               <th data-key="category">카테고리</th>
               <th data-key="course">강의명</th>
               <th data-key="hours">학습시간</th>
@@ -851,7 +885,7 @@ body {
               <th data-key="status">수료</th>
             </tr>
           </thead>
-          <tbody id="raw-tbody"><tr><td colspan="9" class="raw-empty">데이터 불러오는 중...</td></tr></tbody>
+          <tbody id="raw-tbody"><tr><td colspan="10" class="raw-empty">데이터 불러오는 중...</td></tr></tbody>
         </table>
       </div>
     </details>
@@ -876,6 +910,7 @@ body {
 
   let view = data.slice();
   let sortKey = null, sortAsc = true;
+  let periodFilter = '';
 
   const tbody = document.getElementById('raw-tbody');
   const search = document.getElementById('raw-search');
@@ -892,15 +927,17 @@ body {
 
   function render() {
     if (view.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" class="raw-empty">조건에 맞는 데이터가 없습니다.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="raw-empty">조건에 맞는 데이터가 없습니다.</td></tr>';
     } else {
       tbody.innerHTML = view.map(r => {
         const cls = r.status === '수료' ? 'status-done' : (r.status === '미수료' ? 'status-none' : '');
+        const pcls = r.period === '올 플랜' ? 'period-allplan' : 'period-single';
         return `<tr>
+          <td class="${pcls}">${escapeHtml(r.period)}</td>
+          <td>${escapeHtml(r.month)}</td>
           <td>${escapeHtml(r.name)}</td>
           <td>${escapeHtml(r.dept)}</td>
           <td>${escapeHtml(r.rank)}</td>
-          <td>${escapeHtml(r.month)}</td>
           <td>${escapeHtml(r.category)}</td>
           <td>${escapeHtml(r.course)}</td>
           <td>${escapeHtml(r.hours)}</td>
@@ -914,10 +951,23 @@ body {
 
   function applyFilter() {
     const q = search.value.trim().toLowerCase();
-    view = q ? data.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q))) : data.slice();
+    view = data.filter(r => {
+      if (periodFilter && r.period !== periodFilter) return false;
+      if (q && !Object.values(r).some(v => String(v).toLowerCase().includes(q))) return false;
+      return true;
+    });
     if (sortKey) sortView();
     render();
   }
+
+  document.querySelectorAll('#raw-filter button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#raw-filter button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      periodFilter = btn.dataset.period;
+      applyFilter();
+    });
+  });
 
   function sortView() {
     const getNum = numKeys[sortKey];
