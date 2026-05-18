@@ -530,7 +530,7 @@ body {
 
 .encourage-images {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-top: 12px;
 }
@@ -544,10 +544,17 @@ body {
   border-radius: 12px;
   padding: 16px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .encourage-images img {
   max-width: 100%;
+  max-height: 420px;
   height: auto;
+  width: auto;
+  object-fit: contain;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
 }
@@ -934,25 +941,25 @@ body {
         <div class="timeline-tag">D-10</div>
         <h4>10일 전</h4>
         <p>학습 마감 사전 안내</p>
-        <span class="timeline-channel">📧 메일</span>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
       </div>
       <div class="timeline-item">
         <div class="timeline-tag">D-5</div>
         <h4>5일 전</h4>
         <p>중간 점검 · 학습 권장</p>
-        <span class="timeline-channel">📧 메일</span>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
       </div>
       <div class="timeline-item">
         <div class="timeline-tag">D-1</div>
         <h4>수강 종료 전날</h4>
         <p>최종 안내 · 마감 임박</p>
-        <span class="timeline-channel">💬 알림톡</span>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
       </div>
       <div class="timeline-item">
         <div class="timeline-tag">D-day</div>
         <h4>수강 종료 당일</h4>
         <p>당일 마지막 안내</p>
-        <span class="timeline-channel">💬 알림톡</span>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
       </div>
     </div>
 
