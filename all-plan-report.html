@@ -487,6 +487,77 @@ body {
   font-size: 13px;
 }
 
+/* ===== Encourage timeline ===== */
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0 26px;
+}
+@media (max-width: 720px) {
+  .timeline { grid-template-columns: repeat(2, 1fr); }
+}
+.timeline-item {
+  background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.timeline-tag {
+  display: inline-block;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.timeline-item h4 { margin: 0 0 6px; font-size: 14px; color: #1e1b4b; }
+.timeline-item p { margin: 0; font-size: 12px; color: #4338ca; line-height: 1.5; }
+.timeline-channel {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.encourage-images {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-top: 12px;
+}
+@media (max-width: 720px) {
+  .encourage-images { grid-template-columns: 1fr; }
+}
+.encourage-images figure {
+  margin: 0;
+  background: #fafbfc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.encourage-images img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+.encourage-images figcaption {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
 /* ===== Footer ===== */
 .page-footer {
   text-align: center;
@@ -850,6 +921,50 @@ body {
         <h3>마이크로 러닝(발췌 수강)의 정착</h3>
         <p>하나의 강의만 보던 과거와 달리, 다양한 카테고리를 넘나들며 본인 직무에 당장 필요한 핵심만 뽑아 듣는 <b>'스마트한 자기주도적 학습'</b>이 사내 문화로 확실히 자리 잡았습니다.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- Section D: 학습 독려 활동 -->
+  <section class="section">
+    <h2 class="section-title">📨 학습 독려 활동</h2>
+    <p class="section-desc">매월 학습 기간 종료를 앞두고 미수료자 대상으로 4번 독려를 진행합니다.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-tag">D-10</div>
+        <h4>10일 전</h4>
+        <p>학습 마감 사전 안내</p>
+        <span class="timeline-channel">📧 메일</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-5</div>
+        <h4>5일 전</h4>
+        <p>중간 점검 · 학습 권장</p>
+        <span class="timeline-channel">📧 메일</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-1</div>
+        <h4>수강 종료 전날</h4>
+        <p>최종 안내 · 마감 임박</p>
+        <span class="timeline-channel">💬 알림톡</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-day</div>
+        <h4>수강 종료 당일</h4>
+        <p>당일 마지막 안내</p>
+        <span class="timeline-channel">💬 알림톡</span>
+      </div>
+    </div>
+
+    <div class="encourage-images">
+      <figure>
+        <img src="./assets/all-plan/encourage-email.png" alt="독려 메일 예시">
+        <figcaption>📧 독려 메일</figcaption>
+      </figure>
+      <figure>
+        <img src="./assets/all-plan/encourage-kakao.png" alt="독려 알림톡 예시">
+        <figcaption>💬 독려 알림톡</figcaption>
+      </figure>
     </div>
   </section>
 
