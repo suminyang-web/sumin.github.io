@@ -355,6 +355,110 @@ body {
 }
 .insight-card b { color: #1d4ed8; }
 
+/* ===== Raw Data Section ===== */
+.raw-details {
+  background: #fafbfc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+}
+.raw-details summary {
+  cursor: pointer;
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4f46e5;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.raw-details summary::-webkit-details-marker { display: none; }
+.raw-details summary::before {
+  content: "▶";
+  font-size: 10px;
+  color: #6b7280;
+  transition: transform 0.2s;
+}
+.raw-details[open] summary::before { transform: rotate(90deg); }
+.raw-details[open] summary { border-bottom: 1px solid #e5e7eb; }
+.raw-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fff;
+}
+.raw-controls input[type="search"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.raw-controls input[type="search"]:focus {
+  outline: 2px solid #2563eb33;
+  border-color: #2563eb;
+}
+.raw-counter { font-size: 12px; color: #6b7280; white-space: nowrap; }
+.raw-counter b { color: #111827; }
+.raw-table-wrap {
+  max-height: 600px;
+  overflow: auto;
+  background: #fff;
+}
+.raw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.raw-table thead {
+  position: sticky;
+  top: 0;
+  background: #f9fafb;
+  z-index: 1;
+}
+.raw-table thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.raw-table thead th:hover { background: #f3f4f6; }
+.raw-table thead th.sorted-asc::after { content: " ↑"; color: #2563eb; }
+.raw-table thead th.sorted-desc::after { content: " ↓"; color: #2563eb; }
+.raw-table tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.raw-table tbody td:nth-child(6) {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.4;
+}
+.raw-table tbody tr:hover { background: #fafbfc; }
+.raw-table tbody td.status-done { color: #166534; font-weight: 600; }
+.raw-table tbody td.status-none { color: #b45309; }
+.raw-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
 /* ===== Footer ===== */
 .page-footer {
   text-align: center;
@@ -721,11 +825,129 @@ body {
     </div>
   </section>
 
+  <!-- Section C: Raw Data -->
+  <section class="section">
+    <h2 class="section-title">📋 Raw 데이터</h2>
+    <p class="section-desc">올 플랜 시기 전체 수강 기록을 검색·정렬해서 확인하실 수 있어요. (이름은 마스킹 처리)</p>
+
+    <details class="raw-details">
+      <summary>전체 데이터 펼쳐보기</summary>
+      <div class="raw-controls">
+        <input type="search" id="raw-search" placeholder="이름·부서·강의·카테고리 검색...">
+        <span class="raw-counter">표시 <b id="raw-shown">-</b> / <b id="raw-total">-</b>건</span>
+      </div>
+      <div class="raw-table-wrap">
+        <table class="raw-table">
+          <thead>
+            <tr>
+              <th data-key="name">이름</th>
+              <th data-key="dept">부서</th>
+              <th data-key="rank">직급</th>
+              <th data-key="month">입과월</th>
+              <th data-key="category">카테고리</th>
+              <th data-key="course">강의명</th>
+              <th data-key="hours">학습시간</th>
+              <th data-key="rate">수강률</th>
+              <th data-key="status">수료</th>
+            </tr>
+          </thead>
+          <tbody id="raw-tbody"><tr><td colspan="9" class="raw-empty">데이터 불러오는 중...</td></tr></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
   <footer class="page-footer">
     sumin.yang@day1company.co.kr
   </footer>
 
 </div>
+
+<script>
+(async () => {
+  let data = [];
+  try {
+    const res = await fetch('./raw_data.json');
+    data = await res.json();
+  } catch (e) {
+    document.getElementById('raw-tbody').innerHTML = '<tr><td colspan="9" class="raw-empty">raw_data.json을 불러올 수 없습니다.</td></tr>';
+    return;
+  }
+
+  let view = data.slice();
+  let sortKey = null, sortAsc = true;
+
+  const tbody = document.getElementById('raw-tbody');
+  const search = document.getElementById('raw-search');
+  const shown = document.getElementById('raw-shown');
+  const total = document.getElementById('raw-total');
+  total.textContent = data.length;
+
+  const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const numKeys = { hours: r => {
+    const m = String(r.hours||'0:0:0').split(':').map(Number);
+    return (m[0]||0)*3600 + (m[1]||0)*60 + (m[2]||0);
+  }, rate: r => parseFloat(String(r.rate||'0').replace('%','')) || 0 };
+
+  function render() {
+    if (view.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="raw-empty">조건에 맞는 데이터가 없습니다.</td></tr>';
+    } else {
+      tbody.innerHTML = view.map(r => {
+        const cls = r.status === '수료' ? 'status-done' : (r.status === '미수료' ? 'status-none' : '');
+        return `<tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${escapeHtml(r.dept)}</td>
+          <td>${escapeHtml(r.rank)}</td>
+          <td>${escapeHtml(r.month)}</td>
+          <td>${escapeHtml(r.category)}</td>
+          <td>${escapeHtml(r.course)}</td>
+          <td>${escapeHtml(r.hours)}</td>
+          <td>${escapeHtml(r.rate)}</td>
+          <td class="${cls}">${escapeHtml(r.status)}</td>
+        </tr>`;
+      }).join('');
+    }
+    shown.textContent = view.length;
+  }
+
+  function applyFilter() {
+    const q = search.value.trim().toLowerCase();
+    view = q ? data.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q))) : data.slice();
+    if (sortKey) sortView();
+    render();
+  }
+
+  function sortView() {
+    const getNum = numKeys[sortKey];
+    view.sort((a, b) => {
+      if (getNum) {
+        const av = getNum(a), bv = getNum(b);
+        return sortAsc ? av - bv : bv - av;
+      }
+      const av = String(a[sortKey] || ''), bv = String(b[sortKey] || '');
+      return sortAsc ? av.localeCompare(bv, 'ko') : bv.localeCompare(av, 'ko');
+    });
+  }
+
+  search.addEventListener('input', applyFilter);
+
+  document.querySelectorAll('.raw-table thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      document.querySelectorAll('.raw-table thead th').forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+      th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+      sortView();
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
 
 </body>
 </html>
