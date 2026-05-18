@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>올 플랜(All-Plan) 도입 성과 리포트</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 18px;
+            color: #6b7280;
+            margin: 0;
+        }
+        .highlight {
+            color: #2563eb;
+            font-weight: bold;
+        }
+        /* Grid for Main KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            font-size: 16px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .metric-comparison {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .old-metric {
+            font-size: 18px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+        .new-metric {
+            font-size: 36px;
+            font-weight: 800;
+            color: #111827;
+        }
+        .growth-badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        /* Secondary Stats */
+        .secondary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            font-size: 16px;
+            color: #4b5563;
+        }
+        .stat-value-old {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .stat-value-new {
+            font-weight: bold;
+            color: #2563eb;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .insight-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid #2563eb;
+            padding: 24px;
+            border-radius: 0 16px 16px 0;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1e3a8a;
+        }
+        @media (max-width: 768px) {
+            .secondary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🚀 올 플랜(All-Plan) 도입 성과 대시보드</h1>
+        <p>단일 수강(24.09~25.06) 대비 <span class="highlight">올 플랜(25.07~현재)</span> 전환 후 주요 변화</p>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="card">
+            <div class="card-title">👥 실제 학습 참여자 수</div>
+            <div class="metric-comparison">
+                <span class="old-metric">105명</span>
+                <span class="new-metric">174명</span>
+            </div>
+            <div class="growth-badge">▲ 66% 증가</div>
+            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">제한 없는 선택권으로 숨어있던 학습 니즈 발현</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">⏱️ 총 누적 학습 시간</div>
+            <div class="metric-comparison">
+                <span class="old-metric">879 시간</span>
+                <span class="new-metric">3,008 시간</span>
+            </div>
+            <div class="growth-badge">▲ 242% 증가</div>
+            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">1인당 평균 학습시간 2배 이상 상승 (8.4h ➔ 17.3h)</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🏆 총 수료 건수</div>
+            <div class="metric-comparison">
+                <span class="old-metric">43 건</span>
+                <span class="new-metric">173 건</span>
+            </div>
+            <div class="growth-badge">▲ 302% 증가</div>
+            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">수료 인원 34명에서 87명으로 2.6배 확대</p>
+        </div>
+    </div>
+
+    <div class="secondary-grid">
+        <div class="card">
+            <div class="card-title">📈 임직원 학습 행동 변화</div>
+            <div class="stat-row">
+                <span class="stat-label">1인당 수강 접근 강의 수</span>
+                <div>
+                    <span class="stat-value-old">1.5개 ➔</span>
+                    <span class="stat-value-new">5.5개 (3.5배 상승)</span>
+                </div>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">1인당 탐색 카테고리 수</span>
+                <div>
+                    <span class="stat-value-old">1.2개 ➔</span>
+                    <span class="stat-value-new">2.5개 (2배 상승)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <h3 style="margin-top: 0; color: #1e40af;">💡 리텐션 인사이트 (핵심 요약)</h3>
+            <p><strong>비용 대비 효용(ROI)의 극대화:</strong><br>
+            올 플랜 도입 이후, 동일한 구독 환경에서 임직원들은 <b>3.5배 더 많은 강의</b>를 탐색하고 <b>2배 더 많은 시간</b> 동안 학습했습니다.</p>
+            <p><strong>마이크로 러닝(발췌 수강)의 정착:</strong><br>
+            하나의 강의만 보던 과거와 달리, 다양한 카테고리를 넘나들며 본인 직무에 당장 필요한 핵심만 뽑아 듣는 <b>'스마트한 자기주도적 학습'</b>이 사내 문화로 확실히 자리 잡았습니다.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
