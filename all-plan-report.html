@@ -159,6 +159,119 @@ body {
 }
 .bar-group-title:first-child { margin-top: 0; }
 
+/* ===== Vertical Bar Chart (월별 추이) ===== */
+.vbar-wrap {
+  background: #fafbfc;
+  border-radius: 12px;
+  padding: 24px 20px 14px;
+  margin-bottom: 24px;
+}
+.vbar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 180px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+.vbar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  min-width: 0;
+}
+.vbar-value {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.vbar-bar {
+  width: 78%;
+  max-width: 36px;
+  background: linear-gradient(180deg, #93c5fd, #2563eb);
+  border-radius: 5px 5px 0 0;
+  min-height: 2px;
+  transition: height 0.5s ease;
+}
+.vbar-col.partial .vbar-bar {
+  background: linear-gradient(180deg, #fde68a, #f59e0b);
+  opacity: 0.7;
+}
+.vbar-label {
+  font-size: 10px;
+  color: #6b7280;
+  position: absolute;
+  bottom: 4px;
+  white-space: nowrap;
+}
+.vbar-caption {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+}
+.vbar-caption b { color: #2563eb; }
+
+/* ===== Horizontal Bar (카테고리) ===== */
+.hbar-list { display: flex; flex-direction: column; gap: 10px; }
+.hbar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.hbar-row .hbar-cat { color: #374151; font-weight: 500; }
+.hbar-row .hbar-track {
+  background: #f3f4f6;
+  border-radius: 5px;
+  height: 18px;
+  overflow: hidden;
+}
+.hbar-row .hbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  border-radius: 5px;
+}
+.hbar-row .hbar-val { font-size: 12px; color: #6b7280; text-align: right; }
+.hbar-row .hbar-val b { color: #111827; }
+
+/* ===== Course Table ===== */
+.course-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 14px;
+}
+.course-table thead th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid #e5e7eb;
+}
+.course-table thead th:nth-child(1) { text-align: center; width: 40px; }
+.course-table thead th:nth-child(2) { text-align: left; }
+.course-table tbody td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: right;
+  color: #374151;
+}
+.course-table tbody td:nth-child(1) { text-align: center; color: #9ca3af; font-weight: 700; }
+.course-table tbody td:nth-child(2) { text-align: left; color: #111827; font-weight: 500; }
+.course-table tbody td .small { font-size: 11px; color: #9ca3af; }
+
 /* ===== Key Finding Box ===== */
 .finding-box {
   background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
@@ -253,6 +366,133 @@ body {
       <span class="after">올 플랜 25.07 ~ 현재</span>
     </div>
   </header>
+
+  <!-- Section A: 월별 추이 (올 플랜 도입 후) -->
+  <section class="section">
+    <h2 class="section-title">📊 올 플랜 도입 후 학습 추이</h2>
+    <p class="section-desc">올 플랜 입과생들의 월별 학습 패턴을 확인하실 수 있어요! (25.07 ~ 26.05, 노랑은 진행 중)</p>
+
+    <div class="split" style="grid-template-columns: 1.6fr 1fr;">
+      <div>
+        <h3 class="subsection-title"><span class="num">A1</span> 월별 총 학습 시간 (h)</h3>
+        <div class="vbar-wrap">
+          <div class="vbar-chart">
+            <div class="vbar-col"><span class="vbar-value">204</span><div class="vbar-bar" style="height: 46.6%"></div><span class="vbar-label">25.07</span></div>
+            <div class="vbar-col"><span class="vbar-value">163</span><div class="vbar-bar" style="height: 37.1%"></div><span class="vbar-label">25.08</span></div>
+            <div class="vbar-col"><span class="vbar-value">199</span><div class="vbar-bar" style="height: 45.3%"></div><span class="vbar-label">25.09</span></div>
+            <div class="vbar-col"><span class="vbar-value">283</span><div class="vbar-bar" style="height: 64.5%"></div><span class="vbar-label">25.10</span></div>
+            <div class="vbar-col"><span class="vbar-value">202</span><div class="vbar-bar" style="height: 46.0%"></div><span class="vbar-label">25.11</span></div>
+            <div class="vbar-col"><span class="vbar-value">240</span><div class="vbar-bar" style="height: 54.6%"></div><span class="vbar-label">25.12</span></div>
+            <div class="vbar-col"><span class="vbar-value">439</span><div class="vbar-bar" style="height: 100%"></div><span class="vbar-label">26.01</span></div>
+            <div class="vbar-col"><span class="vbar-value">426</span><div class="vbar-bar" style="height: 97.0%"></div><span class="vbar-label">26.02</span></div>
+            <div class="vbar-col"><span class="vbar-value">379</span><div class="vbar-bar" style="height: 86.5%"></div><span class="vbar-label">26.03</span></div>
+            <div class="vbar-col"><span class="vbar-value">236</span><div class="vbar-bar" style="height: 53.8%"></div><span class="vbar-label">26.04</span></div>
+            <div class="vbar-col partial"><span class="vbar-value">83</span><div class="vbar-bar" style="height: 19.0%"></div><span class="vbar-label">26.05</span></div>
+          </div>
+          <div class="vbar-caption"><span>최고점 <b>26.01 (439h)</b></span><span>평균 <b>259h/월</b></span></div>
+        </div>
+
+        <h3 class="subsection-title"><span class="num">A2</span> 월별 인당 평균 학습 시간 (h)</h3>
+        <div class="vbar-wrap">
+          <div class="vbar-chart">
+            <div class="vbar-col"><span class="vbar-value">7.3</span><div class="vbar-bar" style="height: 64.0%"></div><span class="vbar-label">25.07</span></div>
+            <div class="vbar-col"><span class="vbar-value">6.8</span><div class="vbar-bar" style="height: 59.5%"></div><span class="vbar-label">25.08</span></div>
+            <div class="vbar-col"><span class="vbar-value">8.3</span><div class="vbar-bar" style="height: 72.5%"></div><span class="vbar-label">25.09</span></div>
+            <div class="vbar-col"><span class="vbar-value">8.1</span><div class="vbar-bar" style="height: 70.9%"></div><span class="vbar-label">25.10</span></div>
+            <div class="vbar-col"><span class="vbar-value">9.2</span><div class="vbar-bar" style="height: 80.4%"></div><span class="vbar-label">25.11</span></div>
+            <div class="vbar-col"><span class="vbar-value">11.4</span><div class="vbar-bar" style="height: 100%"></div><span class="vbar-label">25.12</span></div>
+            <div class="vbar-col"><span class="vbar-value">10.7</span><div class="vbar-bar" style="height: 93.9%"></div><span class="vbar-label">26.01</span></div>
+            <div class="vbar-col"><span class="vbar-value">9.1</span><div class="vbar-bar" style="height: 79.4%"></div><span class="vbar-label">26.02</span></div>
+            <div class="vbar-col"><span class="vbar-value">9.0</span><div class="vbar-bar" style="height: 79.2%"></div><span class="vbar-label">26.03</span></div>
+            <div class="vbar-col"><span class="vbar-value">8.1</span><div class="vbar-bar" style="height: 71.4%"></div><span class="vbar-label">26.04</span></div>
+            <div class="vbar-col partial"><span class="vbar-value">4.4</span><div class="vbar-bar" style="height: 38.5%"></div><span class="vbar-label">26.05</span></div>
+          </div>
+          <div class="vbar-caption"><span>최고점 <b>25.12 (11.4h)</b></span><span>평균 <b>8.4h/월</b></span></div>
+        </div>
+
+        <h3 class="subsection-title"><span class="num">A3</span> 월별 연속 학습률 (이번 달 → 다음 달, %)</h3>
+        <div class="vbar-wrap">
+          <div class="vbar-chart">
+            <div class="vbar-col"><span class="vbar-value">14%</span><div class="vbar-bar" style="height: 27.3%"></div><span class="vbar-label">07→08</span></div>
+            <div class="vbar-col"><span class="vbar-value">8%</span><div class="vbar-bar" style="height: 15.8%"></div><span class="vbar-label">08→09</span></div>
+            <div class="vbar-col"><span class="vbar-value">29%</span><div class="vbar-bar" style="height: 55.7%"></div><span class="vbar-label">09→10</span></div>
+            <div class="vbar-col"><span class="vbar-value">17%</span><div class="vbar-bar" style="height: 32.6%"></div><span class="vbar-label">10→11</span></div>
+            <div class="vbar-col"><span class="vbar-value">27%</span><div class="vbar-bar" style="height: 52.1%"></div><span class="vbar-label">11→12</span></div>
+            <div class="vbar-col"><span class="vbar-value">52%</span><div class="vbar-bar" style="height: 100%"></div><span class="vbar-label">12→01</span></div>
+            <div class="vbar-col"><span class="vbar-value">37%</span><div class="vbar-bar" style="height: 69.8%"></div><span class="vbar-label">01→02</span></div>
+            <div class="vbar-col"><span class="vbar-value">43%</span><div class="vbar-bar" style="height: 81.3%"></div><span class="vbar-label">02→03</span></div>
+            <div class="vbar-col"><span class="vbar-value">33%</span><div class="vbar-bar" style="height: 63.5%"></div><span class="vbar-label">03→04</span></div>
+            <div class="vbar-col"><span class="vbar-value">28%</span><div class="vbar-bar" style="height: 52.7%"></div><span class="vbar-label">04→05</span></div>
+          </div>
+          <div class="vbar-caption"><span>최고점 <b>25.12 → 26.01 (52.4%)</b></span><span>평균 <b>29.0%</b></span></div>
+        </div>
+      </div>
+
+      <aside class="finding-box">
+        <h4>key finding</h4>
+        <ol>
+          <li>월 학습 시간이 도입 초기 200h 안팎이었지만 <strong>26.01~26.03에는 379~439h까지 약 2배로 상승</strong>. 학습이 6개월 만에 본격 궤도에 오름.</li>
+          <li>인당 평균 학습시간도 <strong>6.8h → 11.4h로 약 1.7배 증가</strong>. 처음에는 가볍게 둘러보다가 점점 깊이 학습하는 패턴.</li>
+          <li>연속 학습률은 도입 초반 8~17%에서 <strong>25.12 이후 27~52%로 안정화</strong>. 매월 다시 들어오는 충성 학습자가 확실히 늘어남.</li>
+        </ol>
+        <p class="arrow-line">올 플랜은 도입 직후가 아니라 <b>6개월차 이후부터 본격적인 학습 습관</b>이 형성됨</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Section B: 콘텐츠 분석 -->
+  <section class="section">
+    <h2 class="section-title">📚 인기 카테고리 · Top 10 강의</h2>
+    <p class="section-desc">올 플랜 시기 동안 임직원들이 가장 많이 선택한 카테고리와 강의를 확인하실 수 있어요!</p>
+
+    <div class="split">
+      <div>
+        <h3 class="subsection-title"><span class="num">B1</span> 인기 카테고리 (수강 인원 기준)</h3>
+        <div class="hbar-list">
+          <div class="hbar-row"><span class="hbar-cat">비즈니스 스킬</span><div class="hbar-track"><div class="hbar-fill" style="width: 100%"></div></div><span class="hbar-val"><b>107명</b> · 25.4%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">데이터사이언스</span><div class="hbar-track"><div class="hbar-fill" style="width: 67.3%"></div></div><span class="hbar-val"><b>72명</b> · 17.1%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">마케팅</span><div class="hbar-track"><div class="hbar-fill" style="width: 51.2%"></div></div><span class="hbar-val"><b>55명</b> · 13.0%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">외국어</span><div class="hbar-track"><div class="hbar-fill" style="width: 45.7%"></div></div><span class="hbar-val"><b>49명</b> · 11.6%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">디자인</span><div class="hbar-track"><div class="hbar-fill" style="width: 44.9%"></div></div><span class="hbar-val"><b>48명</b> · 11.4%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">경영/리더십</span><div class="hbar-track"><div class="hbar-fill" style="width: 20.5%"></div></div><span class="hbar-val"><b>22명</b> · 5.2%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">프로그래밍</span><div class="hbar-track"><div class="hbar-fill" style="width: 15.0%"></div></div><span class="hbar-val"><b>16명</b> · 3.8%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">교양</span><div class="hbar-track"><div class="hbar-fill" style="width: 14.2%"></div></div><span class="hbar-val"><b>15명</b> · 3.6%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">부동산/금융</span><div class="hbar-track"><div class="hbar-fill" style="width: 13.0%"></div></div><span class="hbar-val"><b>14명</b> · 3.3%</span></div>
+          <div class="hbar-row"><span class="hbar-cat">자격증</span><div class="hbar-track"><div class="hbar-fill" style="width: 9.4%"></div></div><span class="hbar-val"><b>10명</b> · 2.4%</span></div>
+        </div>
+      </div>
+
+      <aside class="finding-box">
+        <h4>key finding</h4>
+        <ol>
+          <li><strong>비즈니스 스킬 + 데이터사이언스 (총 42.5%)</strong> 가 절반 가까이 차지. 업무 직결 카테고리의 수요가 높음.</li>
+          <li>마케팅·외국어·디자인 카테고리도 <strong>10% 이상씩 골고루 분포</strong>. 직무 외 영역으로의 확산이 명확.</li>
+          <li>프로그래밍·자격증 같은 전문 영역도 <strong>의미 있는 수강 인원</strong>이 발생.</li>
+        </ol>
+        <p class="arrow-line">올 플랜은 <b>직무 중심 학습 + 사이드 관심 영역</b>을 동시에 충족</p>
+      </aside>
+    </div>
+
+    <h3 class="subsection-title" style="margin-top: 28px;"><span class="num">B2</span> Top 10 강의 (누적 학습 시간 기준)</h3>
+    <table class="course-table">
+      <thead>
+        <tr><th>#</th><th>강의명</th><th>누적 학습시간</th><th>수강 인원</th><th>수료자</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>대기업도 배우는 이승필의 ChatGPT &amp; GPTs 바이블</td><td>237.6 h</td><td>35명</td><td>11명</td></tr>
+        <tr><td>2</td><td>한 번에 끝내는 유니티&amp;C# 게임 개발</td><td>113.9 h</td><td>2명</td><td>0명</td></tr>
+        <tr><td>3</td><td>복붙으로 끝내는 미친 AI 업무 자동화 with Claude</td><td>107.2 h</td><td>14명</td><td>6명</td></tr>
+        <tr><td>4</td><td>일잘러를 위한 업무 속도 10배 높이는 구글 AI : Gemini 바이블</td><td>102.0 h</td><td>34명</td><td>6명</td></tr>
+        <tr><td>5</td><td>평생 무료로 써먹는 나만의 ChatGPT 영어 선생님</td><td>100.6 h</td><td>15명</td><td>3명</td></tr>
+        <tr><td>6</td><td>바이브코딩 + 자동화 풀 패키지 (w. n8n x Claude Code)</td><td>87.1 h</td><td>16명</td><td>0명</td></tr>
+        <tr><td>7</td><td>2025 AI 시대 일잘러를 위한 비현실적인 700가지 ChatGPT 활용 바이블</td><td>75.0 h</td><td>18명</td><td>0명</td></tr>
+        <tr><td>8</td><td>The Red : 씀으로써 작가가 되는 글쓰기 by. 김영하</td><td>68.7 h</td><td>22명</td><td>11명</td></tr>
+        <tr><td>9</td><td>한 번에 끝내는 UX/UI 디자인</td><td>62.9 h</td><td>1명</td><td>1명</td></tr>
+        <tr><td>10</td><td>개발자에게 배우는 Cursor AI 고급 노하우</td><td>50.7 h</td><td>4명</td><td>2명</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 12px; color: #9ca3af; margin: 10px 0 0;">* AI/자동화 관련 강의가 Top 10 중 7개를 차지 — 임직원 수요가 AI 활용에 강하게 쏠려 있음</p>
+  </section>
 
   <!-- Section 1: Participation -->
   <section class="section">
