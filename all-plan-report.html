@@ -1,204 +1,483 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>올 플랜(All-Plan) 도입 성과 리포트</title>
-    <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>올 플랜(All-Plan) 도입 성과 리포트</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-            background-color: #f4f7f9;
-            color: #333;
-            margin: 0;
-            padding: 40px 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .header h1 {
-            font-size: 32px;
-            color: #111827;
-            margin-bottom: 10px;
-        }
-        .header p {
-            font-size: 18px;
-            color: #6b7280;
-            margin: 0;
-        }
-        .highlight {
-            color: #2563eb;
-            font-weight: bold;
-        }
-        /* Grid for Main KPIs */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        .card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-title {
-            font-size: 16px;
-            color: #6b7280;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        .metric-comparison {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .old-metric {
-            font-size: 18px;
-            color: #9ca3af;
-            text-decoration: line-through;
-        }
-        .new-metric {
-            font-size: 36px;
-            font-weight: 800;
-            color: #111827;
-        }
-        .growth-badge {
-            display: inline-block;
-            background: #dcfce7;
-            color: #166534;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        /* Secondary Stats */
-        .secondary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .stat-row:last-child {
-            border-bottom: none;
-        }
-        .stat-label {
-            font-size: 16px;
-            color: #4b5563;
-        }
-        .stat-value-old {
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        .stat-value-new {
-            font-weight: bold;
-            color: #2563eb;
-            font-size: 18px;
-            margin-left: 10px;
-        }
-        .insight-box {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-left: 4px solid #2563eb;
-            padding: 24px;
-            border-radius: 0 16px 16px 0;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #1e3a8a;
-        }
-        @media (max-width: 768px) {
-            .secondary-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+* { box-sizing: border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  background: #f4f7f9;
+  color: #1f2937;
+  margin: 0;
+  padding: 40px 20px 80px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* ===== Header ===== */
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.page-header h1 {
+  font-size: 30px; font-weight: 800; color: #111827;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+.page-header .subtitle {
+  font-size: 16px; color: #6b7280; margin: 0;
+}
+.page-header .period-badge {
+  display: inline-flex; gap: 16px; align-items: center;
+  background: #fff; border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px; color: #4b5563;
+  margin-top: 14px;
+}
+.period-badge .arrow { color: #9ca3af; }
+.period-badge .after { color: #2563eb; font-weight: 700; }
+
+/* ===== Section ===== */
+.section {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 36px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.04);
+}
+.section-title {
+  font-size: 20px; font-weight: 700; color: #111827;
+  margin: 0 0 4px;
+}
+.section-desc {
+  font-size: 14px; color: #6b7280;
+  margin: 0 0 26px;
+}
+
+/* ===== Layout: data + finding split ===== */
+.split {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 32px;
+}
+@media (max-width: 860px) {
+  .split { grid-template-columns: 1fr; gap: 24px; }
+  .section { padding: 24px 20px; }
+  body { padding: 24px 12px 60px; }
+}
+
+.subsection-title {
+  font-size: 15px; font-weight: 700; color: #374151;
+  margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.subsection-title .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  background: #eef2ff; color: #4f46e5;
+  border-radius: 6px;
+  font-size: 12px; font-weight: 700;
+}
+
+/* ===== Comparison Table ===== */
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+.cmp-table thead th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid #e5e7eb;
+}
+.cmp-table thead th:first-child { text-align: left; }
+.cmp-table tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: right;
+}
+.cmp-table tbody td:first-child {
+  text-align: left;
+  color: #374151;
+  font-weight: 500;
+}
+.cmp-table .before { color: #9ca3af; }
+.cmp-table .after { color: #111827; font-weight: 700; }
+.cmp-table .growth {
+  color: #166534; font-weight: 700;
+  font-size: 13px;
+}
+.cmp-table .growth.high { color: #b45309; }
+
+/* ===== Bar Chart (Pure SVG) ===== */
+.bar-chart { margin-top: 6px; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.bar-row .bar-label { color: #6b7280; }
+.bar-row .bar-track {
+  background: #f3f4f6;
+  border-radius: 6px;
+  height: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.bar-row .bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+.bar-row.before .bar-fill { background: linear-gradient(90deg, #d1d5db, #9ca3af); }
+.bar-row.after .bar-fill { background: linear-gradient(90deg, #60a5fa, #2563eb); }
+.bar-row .bar-value {
+  font-size: 13px; font-weight: 700;
+  color: #111827;
+  min-width: 60px;
+  text-align: right;
+}
+.bar-row.before .bar-value { color: #6b7280; font-weight: 600; }
+
+.bar-group-title {
+  font-size: 13px; color: #4b5563; font-weight: 600;
+  margin: 16px 0 8px;
+}
+.bar-group-title:first-child { margin-top: 0; }
+
+/* ===== Key Finding Box ===== */
+.finding-box {
+  background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+  border-radius: 14px;
+  padding: 22px 24px;
+  font-size: 14px;
+  color: #713f12;
+  align-self: start;
+}
+.finding-box h4 {
+  margin: 0 0 14px;
+  font-size: 13px; font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.finding-box ol {
+  margin: 0; padding-left: 18px;
+}
+.finding-box li {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.finding-box li:last-child { margin-bottom: 0; }
+.finding-box li strong { color: #78350f; }
+.finding-box .arrow-line {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #fcd34d;
+  font-size: 13px;
+  color: #92400e;
+}
+.finding-box .arrow-line::before { content: "→ "; font-weight: 700; }
+
+/* ===== Insight Section (final) ===== */
+.insight-section {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 18px;
+  padding: 32px 36px;
+  color: #1e3a8a;
+}
+.insight-section h2 {
+  font-size: 20px; font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 18px;
+}
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 860px) {
+  .insight-grid { grid-template-columns: 1fr; }
+  .insight-section { padding: 24px 20px; }
+}
+.insight-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  border: 1px solid rgba(37,99,235,0.1);
+}
+.insight-card h3 {
+  margin: 0 0 10px;
+  font-size: 15px; font-weight: 700;
+  color: #1e40af;
+}
+.insight-card p {
+  margin: 0;
+  font-size: 14px; color: #1e3a8a;
+  line-height: 1.65;
+}
+.insight-card b { color: #1d4ed8; }
+
+/* ===== Footer ===== */
+.page-footer {
+  text-align: center;
+  font-size: 12px; color: #9ca3af;
+  margin-top: 40px;
+}
+</style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>🚀 올 플랜(All-Plan) 도입 성과 대시보드</h1>
-        <p>단일 수강(24.09~25.06) 대비 <span class="highlight">올 플랜(25.07~현재)</span> 전환 후 주요 변화</p>
+
+  <header class="page-header">
+    <h1>🚀 올 플랜(All-Plan) 도입 성과 리포트</h1>
+    <p class="subtitle">단일 수강 대비 올 플랜 전환 후 학습 성과 변화</p>
+    <div class="period-badge">
+      <span>단일 수강 <b>24.09 ~ 25.06</b></span>
+      <span class="arrow">→</span>
+      <span class="after">올 플랜 25.07 ~ 현재</span>
     </div>
+  </header>
 
-    <div class="kpi-grid">
-        <div class="card">
-            <div class="card-title">👥 실제 학습 참여자 수</div>
-            <div class="metric-comparison">
-                <span class="old-metric">105명</span>
-                <span class="new-metric">174명</span>
-            </div>
-            <div class="growth-badge">▲ 66% 증가</div>
-            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">제한 없는 선택권으로 숨어있던 학습 니즈 발현</p>
-        </div>
+  <!-- Section 1: Participation -->
+  <section class="section">
+    <h2 class="section-title">1. 학습 참여 현황</h2>
+    <p class="section-desc">올 플랜 전환 후 학습에 참여한 임직원이 얼마나 늘었는지 확인하실 수 있어요!</p>
 
-        <div class="card">
-            <div class="card-title">⏱️ 총 누적 학습 시간</div>
-            <div class="metric-comparison">
-                <span class="old-metric">879 시간</span>
-                <span class="new-metric">3,008 시간</span>
-            </div>
-            <div class="growth-badge">▲ 242% 증가</div>
-            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">1인당 평균 학습시간 2배 이상 상승 (8.4h ➔ 17.3h)</p>
-        </div>
+    <div class="split">
+      <div>
+        <h3 class="subsection-title"><span class="num">1-1</span> 참여자 / 수료자 변화</h3>
+        <table class="cmp-table">
+          <thead>
+            <tr><th>구분</th><th>단일 수강</th><th>올 플랜</th><th>증감</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>실제 학습 참여자</td>
+              <td class="before">105명</td>
+              <td class="after">174명</td>
+              <td class="growth">▲ 66%</td>
+            </tr>
+            <tr>
+              <td>수료자 수</td>
+              <td class="before">34명</td>
+              <td class="after">87명</td>
+              <td class="growth high">▲ 156%</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div class="card">
-            <div class="card-title">🏆 총 수료 건수</div>
-            <div class="metric-comparison">
-                <span class="old-metric">43 건</span>
-                <span class="new-metric">173 건</span>
-            </div>
-            <div class="growth-badge">▲ 302% 증가</div>
-            <p style="font-size: 13px; color: #6b7280; margin-top: 15px;">수료 인원 34명에서 87명으로 2.6배 확대</p>
+        <div class="bar-chart">
+          <div class="bar-group-title">실제 학습 참여자</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 60.3%"></div></div>
+            <span class="bar-value">105</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">174</span>
+          </div>
+
+          <div class="bar-group-title">수료자 수</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 39.1%"></div></div>
+            <span class="bar-value">34</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">87</span>
+          </div>
         </div>
+      </div>
+
+      <aside class="finding-box">
+        <h4>key finding</h4>
+        <ol>
+          <li>실제 학습에 참여한 임직원이 <strong>105명에서 174명으로 66% 증가</strong>. 제한 없는 선택권이 잠재 학습 니즈를 끌어냄.</li>
+          <li>수료자 수도 <strong>34명 → 87명, 2.6배 확대</strong>. 단순 접근이 아니라 끝까지 듣는 임직원이 늘어남.</li>
+        </ol>
+        <p class="arrow-line">올 플랜은 <b>참여 폭과 완수율</b>을 동시에 끌어올림</p>
+      </aside>
     </div>
+  </section>
 
-    <div class="secondary-grid">
-        <div class="card">
-            <div class="card-title">📈 임직원 학습 행동 변화</div>
-            <div class="stat-row">
-                <span class="stat-label">1인당 수강 접근 강의 수</span>
-                <div>
-                    <span class="stat-value-old">1.5개 ➔</span>
-                    <span class="stat-value-new">5.5개 (3.5배 상승)</span>
-                </div>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">1인당 탐색 카테고리 수</span>
-                <div>
-                    <span class="stat-value-old">1.2개 ➔</span>
-                    <span class="stat-value-new">2.5개 (2배 상승)</span>
-                </div>
-            </div>
-        </div>
+  <!-- Section 2: Volume -->
+  <section class="section">
+    <h2 class="section-title">2. 학습 양·질 현황</h2>
+    <p class="section-desc">전환 후 임직원들이 얼마나 더 많이, 더 오래 학습했는지 확인하실 수 있어요!</p>
 
-        <div class="insight-box">
-            <h3 style="margin-top: 0; color: #1e40af;">💡 리텐션 인사이트 (핵심 요약)</h3>
-            <p><strong>비용 대비 효용(ROI)의 극대화:</strong><br>
-            올 플랜 도입 이후, 동일한 구독 환경에서 임직원들은 <b>3.5배 더 많은 강의</b>를 탐색하고 <b>2배 더 많은 시간</b> 동안 학습했습니다.</p>
-            <p><strong>마이크로 러닝(발췌 수강)의 정착:</strong><br>
-            하나의 강의만 보던 과거와 달리, 다양한 카테고리를 넘나들며 본인 직무에 당장 필요한 핵심만 뽑아 듣는 <b>'스마트한 자기주도적 학습'</b>이 사내 문화로 확실히 자리 잡았습니다.</p>
+    <div class="split">
+      <div>
+        <h3 class="subsection-title"><span class="num">2-1</span> 학습 시간 / 수료 건수 변화</h3>
+        <table class="cmp-table">
+          <thead>
+            <tr><th>구분</th><th>단일 수강</th><th>올 플랜</th><th>증감</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>총 누적 학습 시간</td>
+              <td class="before">879 시간</td>
+              <td class="after">3,008 시간</td>
+              <td class="growth high">▲ 242%</td>
+            </tr>
+            <tr>
+              <td>1인당 평균 학습시간</td>
+              <td class="before">8.4 시간</td>
+              <td class="after">17.3 시간</td>
+              <td class="growth">▲ 106%</td>
+            </tr>
+            <tr>
+              <td>총 수료 건수</td>
+              <td class="before">43 건</td>
+              <td class="after">173 건</td>
+              <td class="growth high">▲ 302%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="bar-chart">
+          <div class="bar-group-title">총 누적 학습 시간 (h)</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 29.2%"></div></div>
+            <span class="bar-value">879</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">3,008</span>
+          </div>
+
+          <div class="bar-group-title">총 수료 건수</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 24.9%"></div></div>
+            <span class="bar-value">43</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">173</span>
+          </div>
         </div>
+      </div>
+
+      <aside class="finding-box">
+        <h4>key finding</h4>
+        <ol>
+          <li>총 학습 시간이 <strong>879h → 3,008h로 약 3.4배 증가</strong>. 동일 구독 환경에서 학습 총량이 크게 늘어남.</li>
+          <li>1인당 평균 학습 시간도 <strong>8.4h → 17.3h로 2배 이상 상승</strong>. 한 명 한 명의 몰입도가 깊어짐.</li>
+          <li>수료 건수는 <strong>43건 → 173건, 무려 4배</strong>. 끝까지 완수하는 학습이 일상화됨.</li>
+        </ol>
+        <p class="arrow-line">학습이 <b>'단발성 이벤트'에서 '지속적 습관'</b>으로 바뀜</p>
+      </aside>
     </div>
+  </section>
+
+  <!-- Section 3: Behavior -->
+  <section class="section">
+    <h2 class="section-title">3. 학습 행동 변화</h2>
+    <p class="section-desc">전환 후 임직원의 학습 패턴이 어떻게 달라졌는지 확인하실 수 있어요!</p>
+
+    <div class="split">
+      <div>
+        <h3 class="subsection-title"><span class="num">3-1</span> 탐색 강의·카테고리 변화</h3>
+        <table class="cmp-table">
+          <thead>
+            <tr><th>구분</th><th>단일 수강</th><th>올 플랜</th><th>증감</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1인당 수강 접근 강의 수</td>
+              <td class="before">1.5 개</td>
+              <td class="after">5.5 개</td>
+              <td class="growth high">▲ 267% (3.5배)</td>
+            </tr>
+            <tr>
+              <td>1인당 탐색 카테고리 수</td>
+              <td class="before">1.2 개</td>
+              <td class="after">2.5 개</td>
+              <td class="growth">▲ 108% (2배)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="bar-chart">
+          <div class="bar-group-title">1인당 수강 접근 강의 수</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 27.3%"></div></div>
+            <span class="bar-value">1.5</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">5.5</span>
+          </div>
+
+          <div class="bar-group-title">1인당 탐색 카테고리 수</div>
+          <div class="bar-row before">
+            <span class="bar-label">단일 수강</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 48%"></div></div>
+            <span class="bar-value">1.2</span>
+          </div>
+          <div class="bar-row after">
+            <span class="bar-label">올 플랜</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <span class="bar-value">2.5</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="finding-box">
+        <h4>key finding</h4>
+        <ol>
+          <li>1인당 접근 강의 수가 <strong>1.5개 → 5.5개로 3.5배 상승</strong>. 한 강의에 머무르지 않고 다양한 콘텐츠를 탐색.</li>
+          <li>탐색하는 카테고리 수도 <strong>1.2개 → 2.5개로 2배 확대</strong>. 직무 외 영역까지 학습 범위가 넓어짐.</li>
+        </ol>
+        <p class="arrow-line">필요한 부분만 골라 듣는 <b>'마이크로 러닝'</b>이 사내 학습 문화로 정착</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Final Insight -->
+  <section class="insight-section">
+    <h2>💡 종합 인사이트</h2>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <h3>비용 대비 효용(ROI)의 극대화</h3>
+        <p>올 플랜 도입 이후, 동일한 구독 환경에서 임직원들은 <b>3.5배 더 많은 강의</b>를 탐색하고 <b>2배 이상 학습 시간</b>을 투자했습니다. 같은 비용으로 발생한 학습 가치는 비교할 수 없는 수준으로 커졌습니다.</p>
+      </div>
+      <div class="insight-card">
+        <h3>마이크로 러닝(발췌 수강)의 정착</h3>
+        <p>하나의 강의만 보던 과거와 달리, 다양한 카테고리를 넘나들며 본인 직무에 당장 필요한 핵심만 뽑아 듣는 <b>'스마트한 자기주도적 학습'</b>이 사내 문화로 확실히 자리 잡았습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    sumin.yang@day1company.co.kr
+  </footer>
+
 </div>
 
 </body>
