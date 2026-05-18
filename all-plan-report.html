@@ -43,6 +43,47 @@ body {
 .period-badge .arrow { color: #9ca3af; }
 .period-badge .after { color: #2563eb; font-weight: 700; }
 
+/* ===== Part Header (그룹 구분) ===== */
+.part-header {
+  margin: 36px 0 18px;
+  text-align: center;
+  position: relative;
+}
+.part-header::before, .part-header::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0 auto 14px;
+  max-width: 200px;
+}
+.part-header::after { margin: 14px auto 0; }
+.part-header .label {
+  display: inline-block;
+  padding: 5px 14px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.part-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+.part-header p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+.part-header.part-2 .label { background: #db2777; }
+.page-header + .part-header { margin-top: 8px; }
+
 /* ===== Section ===== */
 .section {
   background: #fff;
@@ -596,6 +637,12 @@ body {
     </div>
   </header>
 
+  <div class="part-header part-1">
+    <span class="label">PART 1</span>
+    <h2>올 플랜 도입 후 수강 현황</h2>
+    <p>25.07 ~ 26.04 기간의 학습 활동을 다각도로 분석</p>
+  </div>
+
   <!-- Section A: 월별 추이 (올 플랜 도입 후) -->
   <section class="section">
     <h2 class="section-title">📊 올 플랜 도입 후 학습 추이</h2>
@@ -784,6 +831,56 @@ body {
       </aside>
     </div>
   </section>
+
+  <!-- Section D: 학습 독려 활동 -->
+  <section class="section">
+    <h2 class="section-title">📨 학습 독려 활동</h2>
+    <p class="section-desc">매월 학습 기간 종료를 앞두고 미수료자 대상으로 4번 독려를 진행합니다.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-tag">D-10</div>
+        <h4>10일 전</h4>
+        <p>학습 마감 사전 안내</p>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-5</div>
+        <h4>5일 전</h4>
+        <p>중간 점검 · 학습 권장</p>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-1</div>
+        <h4>수강 종료 전날</h4>
+        <p>최종 안내 · 마감 임박</p>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-tag">D-day</div>
+        <h4>수강 종료 당일</h4>
+        <p>당일 마지막 안내</p>
+        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
+      </div>
+    </div>
+
+    <div class="encourage-images">
+      <figure>
+        <img src="./assets/all-plan/encourage-email.png" alt="독려 메일 예시">
+        <figcaption>📧 독려 메일</figcaption>
+      </figure>
+      <figure>
+        <img src="./assets/all-plan/encourage-kakao.png" alt="독려 알림톡 예시">
+        <figcaption>💬 독려 알림톡</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="part-header part-2">
+    <span class="label">PART 2</span>
+    <h2>올 플랜 도입 전 · 후 비교</h2>
+    <p>단일 수강(24.09 ~ 25.06) 대비 올 플랜(25.07 ~ 현재) 전환 효과</p>
+  </div>
 
   <!-- Section 1: Participation -->
   <section class="section">
@@ -1002,50 +1099,6 @@ body {
         <h3>마이크로 러닝(발췌 수강)의 정착</h3>
         <p>하나의 강의만 보던 과거와 달리, 다양한 카테고리를 넘나들며 본인 직무에 당장 필요한 핵심만 뽑아 듣는 <b>'스마트한 자기주도적 학습'</b>이 사내 문화로 확실히 자리 잡았습니다.</p>
       </div>
-    </div>
-  </section>
-
-  <!-- Section D: 학습 독려 활동 -->
-  <section class="section">
-    <h2 class="section-title">📨 학습 독려 활동</h2>
-    <p class="section-desc">매월 학습 기간 종료를 앞두고 미수료자 대상으로 4번 독려를 진행합니다.</p>
-
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-tag">D-10</div>
-        <h4>10일 전</h4>
-        <p>학습 마감 사전 안내</p>
-        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-tag">D-5</div>
-        <h4>5일 전</h4>
-        <p>중간 점검 · 학습 권장</p>
-        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-tag">D-1</div>
-        <h4>수강 종료 전날</h4>
-        <p>최종 안내 · 마감 임박</p>
-        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-tag">D-day</div>
-        <h4>수강 종료 당일</h4>
-        <p>당일 마지막 안내</p>
-        <span class="timeline-channel">📧 메일 + 💬 알림톡</span>
-      </div>
-    </div>
-
-    <div class="encourage-images">
-      <figure>
-        <img src="./assets/all-plan/encourage-email.png" alt="독려 메일 예시">
-        <figcaption>📧 독려 메일</figcaption>
-      </figure>
-      <figure>
-        <img src="./assets/all-plan/encourage-kakao.png" alt="독려 알림톡 예시">
-        <figcaption>💬 독려 알림톡</figcaption>
-      </figure>
     </div>
   </section>
 
