@@ -13,11 +13,92 @@ body {
   background: #f4f7f9;
   color: #1f2937;
   margin: 0;
-  padding: 40px 20px 80px;
+  padding: 40px 20px 80px 260px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 .container { max-width: 1100px; margin: 0 auto; }
+
+/* ===== Sidebar (logo + TOC) ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 28px 20px;
+  overflow-y: auto;
+  z-index: 10;
+}
+.sidebar-logo {
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.sidebar-logo img {
+  max-width: 140px;
+  width: 100%;
+  height: auto;
+}
+.sidebar-toc { font-size: 13px; }
+.sidebar-toc .toc-section {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 18px 0 6px;
+  padding-left: 8px;
+}
+.sidebar-toc .toc-section:first-child { margin-top: 0; }
+.sidebar-toc a {
+  display: block;
+  padding: 7px 10px;
+  color: #4b5563;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-bottom: 1px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  transition: background 0.12s, color 0.12s;
+}
+.sidebar-toc a:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
+.sidebar-toc a.active {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  body { padding: 24px 16px 60px; }
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .sidebar-logo {
+    padding: 0;
+    margin: 0;
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+  .sidebar-logo img { max-width: 80px; }
+  .sidebar-toc { display: none; }
+}
 
 /* ===== Header ===== */
 .page-header {
@@ -625,6 +706,28 @@ body {
 </head>
 <body>
 
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="./assets/all-plan/innocean_logo.jpg" alt="INNOCEAN">
+  </div>
+  <nav class="sidebar-toc">
+    <div class="toc-section">PART 1 · 도입 후 현황</div>
+    <a href="#section-a">A. 월별 학습 추이</a>
+    <a href="#section-b">B. 인기 카테고리·Top 10</a>
+    <a href="#section-c">C. 요일별·시간대별</a>
+    <a href="#section-d">D. 학습 독려 활동</a>
+
+    <div class="toc-section">PART 2 · 전·후 비교</div>
+    <a href="#section-1">1. 학습 참여 현황</a>
+    <a href="#section-2">2. 학습 양·질 현황</a>
+    <a href="#section-3">3. 학습 행동 변화</a>
+    <a href="#section-insight">💡 종합 인사이트</a>
+
+    <div class="toc-section">부록</div>
+    <a href="#section-raw">📋 Raw 데이터</a>
+  </nav>
+</aside>
+
 <div class="container">
 
   <header class="page-header">
@@ -644,7 +747,7 @@ body {
   </div>
 
   <!-- Section A: 월별 추이 (올 플랜 도입 후) -->
-  <section class="section">
+  <section class="section" id="section-a">
     <h2 class="section-title">📊 올 플랜 도입 후 학습 추이</h2>
     <p class="section-desc">올 플랜 입과생들의 월별 학습 패턴을 확인하실 수 있어요! (25.07 ~ 26.04)</p>
 
@@ -714,7 +817,7 @@ body {
   </section>
 
   <!-- Section B: 콘텐츠 분석 -->
-  <section class="section">
+  <section class="section" id="section-b">
     <h2 class="section-title">📚 인기 카테고리 · Top 10 강의</h2>
     <p class="section-desc">올 플랜 시기 동안 임직원들이 가장 많이 선택한 카테고리와 강의를 확인하실 수 있어요!</p>
 
@@ -768,7 +871,7 @@ body {
   </section>
 
   <!-- Section C: 요일별 · 시간대별 학습 현황 -->
-  <section class="section">
+  <section class="section" id="section-c">
     <h2 class="section-title">📅 요일별 · 시간대별 학습 현황</h2>
     <p class="section-desc">올 플랜 입과생들이 언제 학습하는지 확인하실 수 있어요!</p>
 
@@ -833,7 +936,7 @@ body {
   </section>
 
   <!-- Section D: 학습 독려 활동 -->
-  <section class="section">
+  <section class="section" id="section-d">
     <h2 class="section-title">📨 학습 독려 활동</h2>
     <p class="section-desc">매월 학습 기간 종료를 앞두고 미수료자 대상으로 4번 독려를 진행합니다.</p>
 
@@ -883,7 +986,7 @@ body {
   </div>
 
   <!-- Section 1: Participation -->
-  <section class="section">
+  <section class="section" id="section-1">
     <h2 class="section-title">1. 학습 참여 현황</h2>
     <p class="section-desc">올 플랜 전환 후 학습에 참여한 임직원이 얼마나 늘었는지 확인하실 수 있어요!</p>
 
@@ -949,7 +1052,7 @@ body {
   </section>
 
   <!-- Section 2: Volume -->
-  <section class="section">
+  <section class="section" id="section-2">
     <h2 class="section-title">2. 학습 양·질 현황</h2>
     <p class="section-desc">전환 후 임직원들이 얼마나 더 많이, 더 오래 학습했는지 확인하실 수 있어요!</p>
 
@@ -1022,7 +1125,7 @@ body {
   </section>
 
   <!-- Section 3: Behavior -->
-  <section class="section">
+  <section class="section" id="section-3">
     <h2 class="section-title">3. 학습 행동 변화</h2>
     <p class="section-desc">전환 후 임직원의 학습 패턴이 어떻게 달라졌는지 확인하실 수 있어요!</p>
 
@@ -1088,7 +1191,7 @@ body {
   </section>
 
   <!-- Final Insight -->
-  <section class="insight-section">
+  <section class="insight-section" id="section-insight">
     <h2>💡 종합 인사이트</h2>
     <div class="insight-grid">
       <div class="insight-card">
@@ -1103,7 +1206,7 @@ body {
   </section>
 
   <!-- Section C: Raw Data -->
-  <section class="section">
+  <section class="section" id="section-raw">
     <h2 class="section-title">📋 Raw 데이터</h2>
     <p class="section-desc">올 플랜 도입 전(24.09~25.06) / 후(25.07~26.04) 전체 수강 기록을 검색·정렬해서 확인하실 수 있어요. (이름은 마스킹 처리)</p>
 
@@ -1245,6 +1348,28 @@ body {
   });
 
   render();
+})();
+
+// 사이드바 TOC 현재 섹션 강조
+(() => {
+  const links = document.querySelectorAll('.sidebar-toc a');
+  const sections = Array.from(links)
+    .map(a => ({ link: a, el: document.querySelector(a.getAttribute('href')) }))
+    .filter(x => x.el);
+
+  function update() {
+    let active = sections[0];
+    for (const s of sections) {
+      if (s.el.getBoundingClientRect().top <= 120) active = s;
+      else break;
+    }
+    links.forEach(a => a.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
 })();
 </script>
 
