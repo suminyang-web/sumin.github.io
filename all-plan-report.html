@@ -498,7 +498,44 @@ body {
   font-size: 14px; color: #374151;
   line-height: 1.65;
 }
-.insight-card b { color: #374151; }
+.insight-card b { color: #111827; }
+.insight-card .insight-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4px 0 14px;
+  font-size: 13.5px;
+}
+.insight-card .insight-table th,
+.insight-card .insight-table td {
+  padding: 9px 6px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: left;
+  color: #374151;
+  white-space: nowrap;
+}
+.insight-card .insight-table th {
+  font-size: 11.5px; font-weight: 600;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 0.02em;
+}
+.insight-card .insight-table tr:last-child td { border-bottom: none; }
+.insight-card .insight-table td.metric { font-weight: 600; color: #374151; }
+.insight-card .insight-table td.arrow { text-align: center; color: #9ca3af; padding: 9px 2px; }
+.insight-card .insight-table td.delta { text-align: right; font-weight: 700; color: #111827; }
+.insight-card .conclusion {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 13.5px; line-height: 1.6;
+  color: #4b5563;
+}
+.insight-card .conclusion b { color: #111827; }
+@media (max-width: 520px) {
+  .insight-card .insight-table { font-size: 12.5px; }
+  .insight-card .insight-table th,
+  .insight-card .insight-table td { padding: 7px 4px; }
+}
 
 /* ===== Raw Data Section ===== */
 .raw-details {
@@ -1321,13 +1358,32 @@ body {
     <div class="insight-grid">
       <div class="insight-card">
         <h3>비용 대비 효용(ROI)의 극대화</h3>
-        <p>싱글 플랜 시기 10개월간 약 <b>2,360만 원</b>이었던 교육비는 올 플랜 도입 후 11개월간 <b>6,490만 원</b>으로 약 2.75배 증가했지만, 같은 기간 총 학습 시간이 879h → 3,008h로 <b>3.4배</b> 늘어났습니다.</p>
-        <p>그 결과 학습 1시간당 단가는 약 <b>26,900원 → 21,600원으로 20% 절감</b>되었으며, 250명 개런티로 시작한 계약에 실제 수강 인원이 <b>450명</b>까지 확장되어 비용 1원당 발생한 학습 가치가 크게 확대되었습니다.</p>
+        <table class="insight-table">
+          <thead>
+            <tr><th>항목</th><th>싱글 플랜</th><th></th><th>올 플랜</th><th>변화</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="metric">매출</td><td>2,360만 원</td><td class="arrow">→</td><td>6,490만 원</td><td class="delta">×2.75</td></tr>
+            <tr><td class="metric">총 학습 시간</td><td>879h</td><td class="arrow">→</td><td>3,008h</td><td class="delta">×3.4</td></tr>
+            <tr><td class="metric">시간당 단가</td><td>26,900원</td><td class="arrow">→</td><td>21,600원</td><td class="delta">-20%</td></tr>
+            <tr><td class="metric">실 수강 인원</td><td>—</td><td class="arrow">→</td><td>450명</td><td class="delta">개런티 250명 초과</td></tr>
+          </tbody>
+        </table>
+        <p class="conclusion">비용은 2.75배 늘었지만 학습량은 3.4배 증가하여, <b>1원당 학습 가치가 크게 확대</b>되었습니다.</p>
       </div>
       <div class="insight-card">
         <h3>마이크로 러닝(발췌 수강)의 정착</h3>
-        <p>싱글 플랜 시기에는 1인당 평균 <b>1.47개 강의·1.20개 카테고리</b>에 머물렀지만, 올 플랜 도입 후에는 1인당 <b>5.09개 강의·2.55개 카테고리</b>로 확장되어 학습 범위가 강의 수는 3.5배, 카테고리는 2배 이상 넓어졌습니다.</p>
-        <p>1인당 학습 시간도 <b>8.4시간 → 17.3시간</b>으로 두 배 이상 늘어, 본인 직무에 당장 필요한 핵심을 골라 듣고 직무 외 영역까지 자유롭게 탐색하는 <b>'스마트한 자기주도적 학습'</b> 패턴이 사내 문화로 자리 잡았습니다.</p>
+        <table class="insight-table">
+          <thead>
+            <tr><th>항목</th><th>싱글 플랜</th><th></th><th>올 플랜</th><th>변화</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="metric">1인당 강의 수</td><td>1.47개</td><td class="arrow">→</td><td>5.09개</td><td class="delta">×3.5</td></tr>
+            <tr><td class="metric">1인당 카테고리</td><td>1.20개</td><td class="arrow">→</td><td>2.55개</td><td class="delta">×2.1</td></tr>
+            <tr><td class="metric">1인당 학습 시간</td><td>8.4h</td><td class="arrow">→</td><td>17.3h</td><td class="delta">×2.1</td></tr>
+          </tbody>
+        </table>
+        <p class="conclusion">본인 직무에 필요한 핵심을 골라 듣고 직무 외 영역까지 자유롭게 탐색하는 <b>'스마트한 자기주도적 학습'</b> 패턴이 자리 잡았습니다.</p>
       </div>
     </div>
   </section>
